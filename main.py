@@ -752,6 +752,9 @@ def calculate_time_difference(timestamp_db):
 
     return time_difference
 
+def bybit_websocket_thread(account_manager):
+    pass
+
 def monitor_and_manage_trades(account_manager):
     while True:
         logging.info("MONITOR and MANAGE TRADES POINT")
@@ -864,6 +867,9 @@ def main(leverage, howMany, n_minutes, spread, config_path):
 
     updates_sync_thread = threading.Thread(target=updates_sync, daemon=True)
     updates_sync_thread.start()
+
+    websocket_thread = threading.Thread(target=bybit_websocket_thread, args=(account_manager,), daemon=True)
+    websocket_thread.start()
 
     def process_trades():
         for _ in range(howMany):

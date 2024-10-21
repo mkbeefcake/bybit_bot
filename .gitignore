@@ -1,3 +1,5 @@
 .venv
 .vscode
-trading_bot.log
+__pycache__
+.env
+*.log

@@ -224,3 +224,197 @@ Connection: Upgrade
 2024-10-21 17:52:53,639 - DEBUG - ++Sent decoded: fin=1 opcode=8 data=b'\x03\xe8'
 2024-10-21 17:52:54,091 - ERROR - error from callback <function _WebSocketManager._connect.<locals>.<lambda> at 0x0000028891DFC7C0>: '{'
 2024-10-21 17:52:54,091 - INFO - tearing down on exception '{'
+2024-10-21 18:38:51,719 - INFO - WebSocket Unified V5 (Auth) attempting connection...
+2024-10-21 18:38:52,626 - DEBUG - --- request header ---
+2024-10-21 18:38:52,641 - DEBUG - GET /v5/public/linear HTTP/1.1
+Upgrade: websocket
+Host: stream-testnet.bybit.com
+Origin: https://stream-testnet.bybit.com
+Sec-WebSocket-Key: MtauhC08ayBxSOExWSof4A==
+Sec-WebSocket-Version: 13
+Connection: Upgrade
+
+
+2024-10-21 18:38:52,662 - DEBUG - -----------------------
+2024-10-21 18:38:52,673 - DEBUG - --- response header ---
+2024-10-21 18:38:53,553 - DEBUG - HTTP/1.1 101 Switching Protocols
+2024-10-21 18:38:53,569 - DEBUG - Connection: upgrade
+2024-10-21 18:38:53,576 - DEBUG - Date: Mon, 21 Oct 2024 16:38:54 GMT
+2024-10-21 18:38:53,591 - DEBUG - Upgrade: websocket
+2024-10-21 18:38:53,598 - DEBUG - Sec-WebSocket-Accept: VqiPbAiy79x3kKd/9lOqlUcyaTQ=
+2024-10-21 18:38:53,611 - DEBUG - X-Cache: Miss from cloudfront
+2024-10-21 18:38:53,638 - DEBUG - Via: 1.1 6738971dae8059801185cfa70ff9aeea.cloudfront.net (CloudFront)
+2024-10-21 18:38:53,703 - DEBUG - X-Amz-Cf-Pop: SOF50-P1
+2024-10-21 18:38:53,715 - DEBUG - X-Amz-Cf-Id: m4KoYlG5lNpt76NsVUhrIK8dR7__yFJX35RX1Pw7OnMteqrdSqUIkQ==
+2024-10-21 18:38:53,729 - DEBUG - -----------------------
+2024-10-21 18:38:53,745 - INFO - WebSocket Unified V5 (Auth) connected
+2024-10-21 18:38:53,745 - INFO - Websocket connected
+2024-10-21 18:38:53,745 - INFO - WebSocket Unified V5 (Auth) attempting connection...
+2024-10-21 18:38:54,314 - DEBUG - --- request header ---
+2024-10-21 18:38:54,347 - DEBUG - GET /v5/private HTTP/1.1
+Upgrade: websocket
+Host: stream-testnet.bybit.com
+Origin: https://stream-testnet.bybit.com
+Sec-WebSocket-Key: e37SoMr2+pFpj9VliviQUw==
+Sec-WebSocket-Version: 13
+Connection: Upgrade
+
+
+2024-10-21 18:38:54,371 - DEBUG - -----------------------
+2024-10-21 18:38:54,376 - DEBUG - --- response header ---
+2024-10-21 18:38:55,222 - DEBUG - HTTP/1.1 101 Switching Protocols
+2024-10-21 18:38:55,254 - DEBUG - Connection: upgrade
+2024-10-21 18:38:55,286 - DEBUG - Date: Mon, 21 Oct 2024 16:38:55 GMT
+2024-10-21 18:38:55,313 - DEBUG - Server: fasthttp
+2024-10-21 18:38:55,320 - DEBUG - Upgrade: websocket
+2024-10-21 18:38:55,341 - DEBUG - Sec-Websocket-Accept: +i4UvRH1nySJvLpNiOU8UaG7ets=
+2024-10-21 18:38:55,348 - DEBUG - X-Cache: Miss from cloudfront
+2024-10-21 18:38:55,489 - DEBUG - Via: 1.1 6738971dae8059801185cfa70ff9aeea.cloudfront.net (CloudFront)
+2024-10-21 18:38:55,504 - DEBUG - X-Amz-Cf-Pop: SOF50-P1
+2024-10-21 18:38:55,515 - DEBUG - X-Amz-Cf-Id: UHnbU35p_edo0Y2A0LyCkbJRR24IKZ-ce-TWrVs3vot0Da5TkbPsCw==
+2024-10-21 18:38:55,541 - DEBUG - -----------------------
+2024-10-21 18:38:55,577 - INFO - WebSocket Unified V5 (Auth) connected
+2024-10-21 18:38:55,577 - INFO - Websocket connected
+2024-10-21 18:38:55,577 - DEBUG - ++Sent raw: b'\x81\xfe\x00\x81{\x7f\xe5\x11\x00]\x8aaYE\xc53\x1a\n\x91yYS\xc53\x1a\r\x82bYE\xc5JY\x18\xa0i\x08\r\x88S\x1d\x1a\xa2)\x167\x90sKL\xb63W_\xd4&IF\xd0#CH\xd6\'NH\xd2=[]\xd6)\x1a\x1b\x81sB\x19\xd4 \x1fK\x87$O\x19\xd3%LH\xd2p\x1a\x1a\xd7!\x1fJ\x84!H\x1b\x87%\x19M\xd0(C\x19\xd6)\x18K\x83sLH\xd5%\x1a\x1e\xd6sJI\xd7"BG\xd2%I\x19\xc7L\x06'
+2024-10-21 18:38:55,578 - DEBUG - ++Sent decoded: fin=1 opcode=1 data=b'{"op": "auth", "args": ["gExsrmBfeG8mHub03S", 1729528736577, "38addb9f11d4b54f64777aae20d5a03db4b2598f38c4fb7704aa3b162398742f"]}'
+2024-10-21 18:38:55,578 - DEBUG - ++Sent raw: b'\x81\xdb\xb6\xc0\xa1\x8e\xcd\xe2\xce\xfe\x94\xfa\x81\xac\xc5\xb5\xc3\xfd\xd5\xb2\xc8\xec\xd3\xe2\x8d\xae\x94\xb2\xc4\xff\xe9\xa9\xc5\xac\x8c\xe0\x83\xb8\xd5\xf0\x99\xbc\x8e\xa5\x94\xa3\x8e\xf8\xc5\xb8\x9b\xf4\x94\xbd\x86\xed\xc3\xbb\xd2\xa1\x8c\xeb\xd5\xf6\x96\xba\xd3\xf5\x93\xbf\xd7\xf7\x92\xac\x9a\xe0\x83\xef\xc4\xa7\xd2\xac\x8c\xe0\xfa\xac\xc6\xaf\xd2\xe7\xc2\xa9\xce\xe0\x94\x9d\xdc'
+2024-10-21 18:38:55,579 - DEBUG - ++Sent decoded: fin=1 opcode=1 data=b'{"op": "subscribe", "req_id": "6c0828e5-88d6-4530-b5da-ec674e521a73", "args": ["position"]}'
+2024-10-21 18:38:55,579 - DEBUG - ++Sent raw: b'\x81\xe7\xc9\xf1\xbd\xcd\xb2\xd3\xd2\xbd\xeb\xcb\x9d\xef\xba\x84\xdf\xbe\xaa\x83\xd4\xaf\xac\xd3\x91\xed\xeb\x83\xd8\xbc\x96\x98\xd9\xef\xf3\xd1\x9f\xfa\xfa\xc8\x8f\xfc\xff\xc4\xd9\xe0\xa8\xc9\x84\xff\xe4\xc5\xdb\xfc\xff\xdc\x85\xfd\xab\xc1\x90\xab\xab\x90\x88\xfd\xfb\xc9\x85\xfe\xac\x93\x85\xef\xe5\xd1\x9f\xac\xbb\x96\xce\xef\xf3\xd1\xe6\xef\xa6\x83\xd9\xa8\xbb\x93\xd2\xa2\xa2\xdf\x88\xfd\xe7\xb3\xe9\x8e\x9c\xa2\xf9\x99\xeb\xac\xc0'
+2024-10-21 18:38:55,579 - DEBUG - ++Sent decoded: fin=1 opcode=1 data=b'{"op": "subscribe", "req_id": "7392165d-a892-4f16-80b0-fba502883eb8", "args": ["orderbook.50.BTCUSDT"]}'
+2024-10-21 18:38:55,982 - DEBUG - ++Rcv raw: b'\x81O{"success":true,"ret_msg":"","op":"auth","conn_id":"cs88215daugsh3k2lv8g-di92"}'
+2024-10-21 18:38:55,982 - DEBUG - ++Rcv raw: b'\x81~\x08\xd0{"topic":"orderbook.50.BTCUSDT","type":"snapshot","ts":1729528735873,"data":{"s":"BTCUSDT","b":[["67560.80","109.205"],["67560.50","0.002"],["67559.80","0.002"],["67555.00","0.001"],["67553.30","0.001"],["67550.80","0.397"],["67550.00","0.003"],["67544.60","0.089"],["67542.00","0.001"],["67541.20","0.129"],["67540.00","0.550"],["67537.60","0.001"],["67531.40","0.001"],["67516.50","0.001"],["67511.30","0.010"],["67507.80","0.001"],["67500.00","0.019"],["67494.30","0.004"],["67492.00","0.074"],["67489.80","0.918"],["67467.20","0.005"],["67461.30","0.443"],["67456.90","0.002"],["67454.90","0.001"],["67452.60","0.426"],["67450.20","0.686"],["67449.70","0.001"],["67399.70","0.001"],["67384.50","0.001"],["67376.10","0.450"],["67375.00","0.002"],["67368.90","0.001"],["67360.60","0.001"],["67349.70","2.513"],["67343.40","0.001"],["67333.30","0.021"],["67331.70","0.004"],["67322.10","0.001"],["67320.90","0.631"],["67300.00","0.057"],["67293.30","0.017"],["67292.80","0.002"],["67291.50","0.358"],["67290.00","0.552"],["67287.60","0.264"],["67286.80","0.185"],["67283.50","0.001"],["67282.90","0.426"],["67278.30","0.010"],["67277.30","0.089"]],"a":[["67560.90","0.073"],["67561.00","0.001"],["67571.00","0.002"],["67574.60","0.001"],["67587.00","0.001"],["67588.10","0.001"],["67597.00","0.597"],["67777.00","0.684"],["67786.40","0.003"],["67792.00","0.426"],["67801.10","0.319"],["67827.80","0.512"],["67833.30","0.057"],["67833.50","0.380"],["67900.00","0.003"],["67901.50","0.009"],["67931.00","0.035"],["67951.70","0.002"],["67961.70","0.236"],["67970.90","0.443"],["67986.60","0.017"],["67996.70","0.918"],["68000.00","0.005"],["68027.10","0.001"],["68030.00","0.553"],["68056.90","0.264"],["68070.40","0.113"],["68075.00","0.003"],["68077.50","0.459"],["68079.10","0.089"],["68100.00","0.070"],["68108.00","0.001"],["68117.50","0.002"],["68124.60","0.129"],["68131.30","0.426"],["68140.80","0.443"],["68165.70","0.658"],["68188.40","0.001"],["68216.50","0.281"],["68250.00","0.003"],["68254.00","0.459"],["68275.00","0.001"],["68283.60","0.002"],["68295.90","0.001"],["68296.10","0.010"],["68297.40","0.010"],["68301.00","0.426"],["68308.40","0.549"],["68310.70","0.443"],["68311.70","0.020"]],"u":10135882,"seq":9374154504},"cts":1729528735352}'
+2024-10-21 18:38:55,982 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"success":true,"ret_msg":"","op":"auth","conn_id":"cs88215daugsh3k2lv8g-di92"}'
+2024-10-21 18:38:55,998 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"topic":"orderbook.50.BTCUSDT","type":"snapshot","ts":1729528735873,"data":{"s":"BTCUSDT","b":[["67560.80","109.205"],["67560.50","0.002"],["67559.80","0.002"],["67555.00","0.001"],["67553.30","0.001"],["67550.80","0.397"],["67550.00","0.003"],["67544.60","0.089"],["67542.00","0.001"],["67541.20","0.129"],["67540.00","0.550"],["67537.60","0.001"],["67531.40","0.001"],["67516.50","0.001"],["67511.30","0.010"],["67507.80","0.001"],["67500.00","0.019"],["67494.30","0.004"],["67492.00","0.074"],["67489.80","0.918"],["67467.20","0.005"],["67461.30","0.443"],["67456.90","0.002"],["67454.90","0.001"],["67452.60","0.426"],["67450.20","0.686"],["67449.70","0.001"],["67399.70","0.001"],["67384.50","0.001"],["67376.10","0.450"],["67375.00","0.002"],["67368.90","0.001"],["67360.60","0.001"],["67349.70","2.513"],["67343.40","0.001"],["67333.30","0.021"],["67331.70","0.004"],["67322.10","0.001"],["67320.90","0.631"],["67300.00","0.057"],["67293.30","0.017"],["67292.80","0.002"],["67291.50","0.358"],["67290.00","0.552"],["67287.60","0.264"],["67286.80","0.185"],["67283.50","0.001"],["67282.90","0.426"],["67278.30","0.010"],["67277.30","0.089"]],"a":[["67560.90","0.073"],["67561.00","0.001"],["67571.00","0.002"],["67574.60","0.001"],["67587.00","0.001"],["67588.10","0.001"],["67597.00","0.597"],["67777.00","0.684"],["67786.40","0.003"],["67792.00","0.426"],["67801.10","0.319"],["67827.80","0.512"],["67833.30","0.057"],["67833.50","0.380"],["67900.00","0.003"],["67901.50","0.009"],["67931.00","0.035"],["67951.70","0.002"],["67961.70","0.236"],["67970.90","0.443"],["67986.60","0.017"],["67996.70","0.918"],["68000.00","0.005"],["68027.10","0.001"],["68030.00","0.553"],["68056.90","0.264"],["68070.40","0.113"],["68075.00","0.003"],["68077.50","0.459"],["68079.10","0.089"],["68100.00","0.070"],["68108.00","0.001"],["68117.50","0.002"],["68124.60","0.129"],["68131.30","0.426"],["68140.80","0.443"],["68165.70","0.658"],["68188.40","0.001"],["68216.50","0.281"],["68250.00","0.003"],["68254.00","0.459"],["68275.00","0.001"],["68283.60","0.002"],["68295.90","0.001"],["68296.10","0.010"],["68297.40","0.010"],["68301.00","0.426"],["68308.40","0.549"],["68310.70","0.443"],["68311.70","0.020"]],"u":10135882,"seq":9374154504},"cts":1729528735352}'
+2024-10-21 18:38:55,998 - DEBUG - ++Rcv raw: b'\x81~\x00\x84{"req_id":"6c0828e5-88d6-4530-b5da-ec674e521a73","success":true,"ret_msg":"","op":"subscribe","conn_id":"cs88215daugsh3k2lv8g-di92"}'
+2024-10-21 18:38:56,007 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"req_id":"6c0828e5-88d6-4530-b5da-ec674e521a73","success":true,"ret_msg":"","op":"subscribe","conn_id":"cs88215daugsh3k2lv8g-di92"}'
+2024-10-21 18:38:56,020 - DEBUG - ++Rcv raw: b'\x81~\x00\xaf{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528736133,"data":{"s":"BTCUSDT","b":[["67560.80","109.208"]],"a":[],"u":10135883,"seq":9374154505},"cts":1729528736122}'
+2024-10-21 18:38:56,021 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528736133,"data":{"s":"BTCUSDT","b":[["67560.80","109.208"]],"a":[],"u":10135883,"seq":9374154505},"cts":1729528736122}'
+2024-10-21 18:38:56,028 - DEBUG - ++Rcv raw: b'\x81~\x00\x8f{"success":true,"ret_msg":"","conn_id":"9eb07089-9978-4766-8176-c04268c640fa","req_id":"7392165d-a892-4f16-80b0-fba502883eb8","op":"subscribe"}'
+2024-10-21 18:38:56,028 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"success":true,"ret_msg":"","conn_id":"9eb07089-9978-4766-8176-c04268c640fa","req_id":"7392165d-a892-4f16-80b0-fba502883eb8","op":"subscribe"}'
+2024-10-21 18:38:56,354 - DEBUG - ++Rcv raw: b'\x81~\x00\xad{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528736853,"data":{"s":"BTCUSDT","b":[],"a":[["67560.90","0.077"]],"u":10135884,"seq":9374154508},"cts":1729528736844}'
+2024-10-21 18:38:56,370 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528736853,"data":{"s":"BTCUSDT","b":[],"a":[["67560.90","0.077"]],"u":10135884,"seq":9374154508},"cts":1729528736844}'
+2024-10-21 18:38:56,842 - DEBUG - ++Rcv raw: b'\x81~\x00\xaf{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528737332,"data":{"s":"BTCUSDT","b":[["67560.80","109.207"]],"a":[],"u":10135885,"seq":9374154509},"cts":1729528737313}'
+2024-10-21 18:38:56,842 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528737332,"data":{"s":"BTCUSDT","b":[["67560.80","109.207"]],"a":[],"u":10135885,"seq":9374154509},"cts":1729528737313}'
+2024-10-21 18:38:56,909 - DEBUG - ++Rcv raw: b'\x81~\x00\xaf{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528737392,"data":{"s":"BTCUSDT","b":[["67560.80","109.208"]],"a":[],"u":10135886,"seq":9374154510},"cts":1729528737378}'
+2024-10-21 18:38:56,909 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528737392,"data":{"s":"BTCUSDT","b":[["67560.80","109.208"]],"a":[],"u":10135886,"seq":9374154510},"cts":1729528737378}'
+2024-10-21 18:38:57,222 - DEBUG - ++Rcv raw: b'\x81~\x00\xad{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528737713,"data":{"s":"BTCUSDT","b":[],"a":[["67560.90","0.075"]],"u":10135887,"seq":9374154511},"cts":1729528737700}'
+2024-10-21 18:38:57,222 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528737713,"data":{"s":"BTCUSDT","b":[],"a":[["67560.90","0.075"]],"u":10135887,"seq":9374154511},"cts":1729528737700}'
+2024-10-21 18:38:58,117 - DEBUG - ++Rcv raw: b'\x81~\x00\xad{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528738612,"data":{"s":"BTCUSDT","b":[],"a":[["67560.90","0.076"]],"u":10135888,"seq":9374154513},"cts":1729528738603}'
+2024-10-21 18:38:58,117 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528738612,"data":{"s":"BTCUSDT","b":[],"a":[["67560.90","0.076"]],"u":10135888,"seq":9374154513},"cts":1729528738603}'
+2024-10-21 18:38:58,746 - DEBUG - ++Rcv raw: b'\x81~\x00\xbe{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528739233,"data":{"s":"BTCUSDT","b":[],"a":[["67587.00","0"],["68333.30","0.017"]],"u":10135889,"seq":9374154514},"cts":1729528739214}'
+2024-10-21 18:38:58,746 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528739233,"data":{"s":"BTCUSDT","b":[],"a":[["67587.00","0"],["68333.30","0.017"]],"u":10135889,"seq":9374154514},"cts":1729528739214}'
+2024-10-21 18:38:59,308 - DEBUG - ++Rcv raw: b'\x81~\x00\xbe{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528739793,"data":{"s":"BTCUSDT","b":[],"a":[["67587.00","0.001"],["68333.30","0"]],"u":10135890,"seq":9374154515},"cts":1729528739778}'
+2024-10-21 18:38:59,308 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528739793,"data":{"s":"BTCUSDT","b":[],"a":[["67587.00","0.001"],["68333.30","0"]],"u":10135890,"seq":9374154515},"cts":1729528739778}'
+2024-10-21 18:39:00,226 - DEBUG - ++Rcv raw: b'\x81~\x00\xad{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528740713,"data":{"s":"BTCUSDT","b":[],"a":[["67560.90","0.047"]],"u":10135891,"seq":9374154517},"cts":1729528740708}'
+2024-10-21 18:39:00,226 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528740713,"data":{"s":"BTCUSDT","b":[],"a":[["67560.90","0.047"]],"u":10135891,"seq":9374154517},"cts":1729528740708}'
+2024-10-21 18:39:00,776 - DEBUG - ++Rcv raw: b'\x81~\x00\xaf{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528741272,"data":{"s":"BTCUSDT","b":[["67560.80","109.205"]],"a":[],"u":10135892,"seq":9374154519},"cts":1729528741252}'
+2024-10-21 18:39:00,792 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528741272,"data":{"s":"BTCUSDT","b":[["67560.80","109.205"]],"a":[],"u":10135892,"seq":9374154519},"cts":1729528741252}'
+2024-10-21 18:39:00,807 - DEBUG - ++Rcv raw: b'\x81~\x00\xe4{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528741293,"data":{"s":"BTCUSDT","b":[["67560.50","0"],["67559.80","0"],["67249.40","0.129"],["67233.30","0.001"]],"a":[],"u":10135893,"seq":9374154523},"cts":1729528741276}'
+2024-10-21 18:39:00,808 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528741293,"data":{"s":"BTCUSDT","b":[["67560.50","0"],["67559.80","0"],["67249.40","0.129"],["67233.30","0.001"]],"a":[],"u":10135893,"seq":9374154523},"cts":1729528741276}'
+2024-10-21 18:39:00,861 - DEBUG - ++Rcv raw: b'\x81~\x00\xc3{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528741352,"data":{"s":"BTCUSDT","b":[["67560.80","109.203"]],"a":[["67560.90","0.044"]],"u":10135894,"seq":9374154525},"cts":1729528741347}'
+2024-10-21 18:39:00,861 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528741352,"data":{"s":"BTCUSDT","b":[["67560.80","109.203"]],"a":[["67560.90","0.044"]],"u":10135894,"seq":9374154525},"cts":1729528741347}'
+2024-10-21 18:39:00,908 - DEBUG - ++Rcv raw: b'\x81~\x00\xad{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528741392,"data":{"s":"BTCUSDT","b":[],"a":[["67560.90","0.042"]],"u":10135895,"seq":9374154526},"cts":1729528741369}'
+2024-10-21 18:39:00,909 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528741392,"data":{"s":"BTCUSDT","b":[],"a":[["67560.90","0.042"]],"u":10135895,"seq":9374154526},"cts":1729528741369}'
+2024-10-21 18:39:00,953 - DEBUG - ++Rcv raw: b'\x81~\x00\xad{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528741432,"data":{"s":"BTCUSDT","b":[],"a":[["67560.90","0.040"]],"u":10135896,"seq":9374154527},"cts":1729528741428}'
+2024-10-21 18:39:00,953 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528741432,"data":{"s":"BTCUSDT","b":[],"a":[["67560.90","0.040"]],"u":10135896,"seq":9374154527},"cts":1729528741428}'
+2024-10-21 18:39:01,117 - DEBUG - ++Rcv raw: b'\x81~\x00\xad{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528741612,"data":{"s":"BTCUSDT","b":[],"a":[["67560.90","0.038"]],"u":10135897,"seq":9374154528},"cts":1729528741590}'
+2024-10-21 18:39:01,117 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528741612,"data":{"s":"BTCUSDT","b":[],"a":[["67560.90","0.038"]],"u":10135897,"seq":9374154528},"cts":1729528741590}'
+2024-10-21 18:39:03,221 - DEBUG - ++Rcv raw: b'\x81~\x00\xad{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528743712,"data":{"s":"BTCUSDT","b":[],"a":[["67560.90","0.036"]],"u":10135898,"seq":9374154531},"cts":1729528743709}'
+2024-10-21 18:39:03,221 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528743712,"data":{"s":"BTCUSDT","b":[],"a":[["67560.90","0.036"]],"u":10135898,"seq":9374154531},"cts":1729528743709}'
+2024-10-21 18:39:03,247 - DEBUG - ++Rcv raw: b'\x81~\x00\xad{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528743732,"data":{"s":"BTCUSDT","b":[],"a":[["67560.90","0.034"]],"u":10135899,"seq":9374154535},"cts":1729528743726}'
+2024-10-21 18:39:03,247 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528743732,"data":{"s":"BTCUSDT","b":[],"a":[["67560.90","0.034"]],"u":10135899,"seq":9374154535},"cts":1729528743726}'
+2024-10-21 18:39:04,819 - DEBUG - ++Rcv raw: b'\x81~\x00\xbe{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528745313,"data":{"s":"BTCUSDT","b":[],"a":[["67587.00","0"],["68333.30","0.017"]],"u":10135900,"seq":9374154536},"cts":1729528745298}'
+2024-10-21 18:39:04,819 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528745313,"data":{"s":"BTCUSDT","b":[],"a":[["67587.00","0"],["68333.30","0.017"]],"u":10135900,"seq":9374154536},"cts":1729528745298}'
+2024-10-21 18:39:05,520 - DEBUG - ++Rcv raw: b'\x81~\x00\xbe{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528746012,"data":{"s":"BTCUSDT","b":[],"a":[["67587.00","0.001"],["68333.30","0"]],"u":10135901,"seq":9374154537},"cts":1729528745999}'
+2024-10-21 18:39:05,520 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528746012,"data":{"s":"BTCUSDT","b":[],"a":[["67587.00","0.001"],["68333.30","0"]],"u":10135901,"seq":9374154537},"cts":1729528745999}'
+2024-10-21 18:39:07,288 - DEBUG - ++Rcv raw: b'\x81~\x00\xad{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528747773,"data":{"s":"BTCUSDT","b":[],"a":[["67560.90","0.033"]],"u":10135902,"seq":9374154540},"cts":1729528747750}'
+2024-10-21 18:39:07,289 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528747773,"data":{"s":"BTCUSDT","b":[],"a":[["67560.90","0.033"]],"u":10135902,"seq":9374154540},"cts":1729528747750}'
+2024-10-21 18:39:10,518 - DEBUG - ++Rcv raw: b'\x81~\x00\xad{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528751012,"data":{"s":"BTCUSDT","b":[],"a":[["67560.90","0.051"]],"u":10135903,"seq":9374154542},"cts":1729528751000}'
+2024-10-21 18:39:10,518 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528751012,"data":{"s":"BTCUSDT","b":[],"a":[["67560.90","0.051"]],"u":10135903,"seq":9374154542},"cts":1729528751000}'
+2024-10-21 18:39:11,046 - DEBUG - ++Rcv raw: b'\x81~\x00\xbe{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528751532,"data":{"s":"BTCUSDT","b":[],"a":[["67587.00","0"],["68333.30","0.017"]],"u":10135904,"seq":9374154545},"cts":1729528751525}'
+2024-10-21 18:39:11,046 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528751532,"data":{"s":"BTCUSDT","b":[],"a":[["67587.00","0"],["68333.30","0.017"]],"u":10135904,"seq":9374154545},"cts":1729528751525}'
+2024-10-21 18:39:11,083 - DEBUG - ++Rcv raw: b'\x81~\x00\xaf{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528751572,"data":{"s":"BTCUSDT","b":[["67560.80","109.202"]],"a":[],"u":10135905,"seq":9374154546},"cts":1729528751564}'
+2024-10-21 18:39:11,083 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528751572,"data":{"s":"BTCUSDT","b":[["67560.80","109.202"]],"a":[],"u":10135905,"seq":9374154546},"cts":1729528751564}'
+2024-10-21 18:39:11,484 - DEBUG - ++Rcv raw: b'\x81~\x00\xbe{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528751973,"data":{"s":"BTCUSDT","b":[],"a":[["67587.00","0.001"],["68333.30","0"]],"u":10135906,"seq":9374154547},"cts":1729528751957}'
+2024-10-21 18:39:11,484 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528751973,"data":{"s":"BTCUSDT","b":[],"a":[["67587.00","0.001"],["68333.30","0"]],"u":10135906,"seq":9374154547},"cts":1729528751957}'
+2024-10-21 18:39:11,759 - DEBUG - ++Rcv raw: b'\x81~\x00\xaf{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528752252,"data":{"s":"BTCUSDT","b":[["67560.80","109.200"]],"a":[],"u":10135907,"seq":9374154549},"cts":1729528752244}'
+2024-10-21 18:39:11,759 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"topic":"orderbook.50.BTCUSDT","type":"delta","ts":1729528752252,"data":{"s":"BTCUSDT","b":[["67560.80","109.200"]],"a":[],"u":10135907,"seq":9374154549},"cts":1729528752244}'
+2024-10-21 18:39:13,755 - DEBUG - ++Sent raw: b'\x81\x8e\xfe\x82\xbf\x10\x85\xa0\xd0`\xdc\xb8\x9f2\x8e\xeb\xd1w\xdc\xff'
+2024-10-21 18:39:13,755 - DEBUG - ++Sent decoded: fin=1 opcode=1 data=b'{"op": "ping"}'
+2024-10-21 18:39:14,155 - DEBUG - ++Rcv raw: b'\x81j{"success":true,"ret_msg":"pong","conn_id":"9eb07089-9978-4766-8176-c04268c640fa","req_id":"","op":"ping"}'
+2024-10-21 18:39:14,155 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"success":true,"ret_msg":"pong","conn_id":"9eb07089-9978-4766-8176-c04268c640fa","req_id":"","op":"ping"}'
+2024-10-21 18:39:15,588 - DEBUG - ++Sent raw: b'\x81\x8e\x95A_9\xeec0I\xb7{\x7f\x1b\xe5(1^\xb7<'
+2024-10-21 18:39:15,588 - DEBUG - ++Sent decoded: fin=1 opcode=1 data=b'{"op": "ping"}'
+2024-10-21 18:39:15,731 - DEBUG - ++Sent raw: b'\x88\x82\xc7\xe1Le\xc4\t'
+2024-10-21 18:39:15,731 - DEBUG - ++Sent decoded: fin=1 opcode=8 data=b'\x03\xe8'
+2024-10-21 18:39:15,986 - DEBUG - ++Rcv raw: b'\x81L{"op":"pong","args":["1729528756486"],"conn_id":"cs88215daugsh3k2lv8g-di92"}'
+2024-10-21 18:39:15,986 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"op":"pong","args":["1729528756486"],"conn_id":"cs88215daugsh3k2lv8g-di92"}'
+2024-10-21 18:39:55,458 - INFO - WebSocket Unified V5 (Auth) attempting connection...
+2024-10-21 18:39:56,513 - DEBUG - --- request header ---
+2024-10-21 18:39:56,555 - DEBUG - GET /v5/public/linear HTTP/1.1
+Upgrade: websocket
+Host: stream-testnet.bybit.com
+Origin: https://stream-testnet.bybit.com
+Sec-WebSocket-Key: pMAjbKCBEcKAXcREIYgS1Q==
+Sec-WebSocket-Version: 13
+Connection: Upgrade
+
+
+2024-10-21 18:39:56,579 - DEBUG - -----------------------
+2024-10-21 18:39:56,620 - DEBUG - --- response header ---
+2024-10-21 18:39:57,312 - DEBUG - HTTP/1.1 101 Switching Protocols
+2024-10-21 18:39:57,328 - DEBUG - Connection: upgrade
+2024-10-21 18:39:57,347 - DEBUG - Date: Mon, 21 Oct 2024 16:39:57 GMT
+2024-10-21 18:39:57,370 - DEBUG - Upgrade: websocket
+2024-10-21 18:39:57,447 - DEBUG - Sec-WebSocket-Accept: 8ufys9z2KIEa7mW72XOotUYXQhA=
+2024-10-21 18:39:57,479 - DEBUG - X-Cache: Miss from cloudfront
+2024-10-21 18:39:57,500 - DEBUG - Via: 1.1 c337a55bb25a3540411fbbf6c8ad1b46.cloudfront.net (CloudFront)
+2024-10-21 18:39:57,527 - DEBUG - X-Amz-Cf-Pop: AMS1-P1
+2024-10-21 18:39:57,552 - DEBUG - X-Amz-Cf-Id: UmhFSBfsss-GLsVbPR3QTQNgcwAVBtHSlwZnRYolClZuAJKFbCqzUA==
+2024-10-21 18:39:57,579 - DEBUG - -----------------------
+2024-10-21 18:39:57,620 - INFO - WebSocket Unified V5 (Auth) connected
+2024-10-21 18:39:57,620 - INFO - Websocket connected
+2024-10-21 18:39:57,620 - INFO - WebSocket Unified V5 (Auth) attempting connection...
+2024-10-21 18:39:58,590 - DEBUG - --- request header ---
+2024-10-21 18:39:58,612 - DEBUG - GET /v5/private HTTP/1.1
+Upgrade: websocket
+Host: stream-testnet.bybit.com
+Origin: https://stream-testnet.bybit.com
+Sec-WebSocket-Key: jHOPoVwCK/143ORjYnEjzQ==
+Sec-WebSocket-Version: 13
+Connection: Upgrade
+
+
+2024-10-21 18:39:58,648 - DEBUG - -----------------------
+2024-10-21 18:39:58,661 - DEBUG - --- response header ---
+2024-10-21 18:39:59,392 - DEBUG - HTTP/1.1 101 Switching Protocols
+2024-10-21 18:39:59,408 - DEBUG - Connection: upgrade
+2024-10-21 18:39:59,438 - DEBUG - Date: Mon, 21 Oct 2024 16:39:59 GMT
+2024-10-21 18:39:59,451 - DEBUG - Server: fasthttp
+2024-10-21 18:39:59,465 - DEBUG - Upgrade: websocket
+2024-10-21 18:39:59,481 - DEBUG - Sec-Websocket-Accept: Fgqd+eMOOPEaaqELy+kbxHULerE=
+2024-10-21 18:39:59,495 - DEBUG - X-Cache: Miss from cloudfront
+2024-10-21 18:39:59,551 - DEBUG - Via: 1.1 5e1e1cde81deec56515dcc5317501fe8.cloudfront.net (CloudFront)
+2024-10-21 18:39:59,703 - DEBUG - X-Amz-Cf-Pop: AMS1-P1
+2024-10-21 18:39:59,766 - DEBUG - X-Amz-Cf-Id: HrgNWWX2HiTBpUz3mXfM33uNqSmhaLpUSF3pCnYovNdxkqDYHGQbsg==
+2024-10-21 18:39:59,781 - DEBUG - -----------------------
+2024-10-21 18:39:59,798 - INFO - WebSocket Unified V5 (Auth) connected
+2024-10-21 18:39:59,798 - INFO - Websocket connected
+2024-10-21 18:39:59,798 - DEBUG - ++Sent raw: b"\x81\xfe\x00\x81\xcbo\xc5\x0c\xb0M\xaa|\xe9U\xe5.\xaa\x1a\xb1d\xe9C\xe5.\xaa\x1d\xa2\x7f\xe9U\xe5W\xe9\x08\x80t\xb8\x1d\xa8N\xad\n\x824\xa6'\xb0n\xfb\\\x96.\xe7O\xf4;\xf9V\xf0>\xf3W\xf5<\xfcV\xfd \xebM\xa0?\xf9\t\xf3:\xae\n\xf0h\xfb\x0b\xf0i\xaa\x0b\xf78\xa9X\xf7m\xfc\r\xf1=\xadX\xf1j\xff\n\xf0i\xae\r\xf1?\xfc\r\xa0;\xf3[\xa3o\xf9V\xf6o\xfa\x0e\xfc?\xfcY\xa49\xaf\x0c\xa05\xa9V\xe7Q\xb6"
+2024-10-21 18:39:59,798 - DEBUG - ++Sent decoded: fin=1 opcode=1 data=b'{"op": "auth", "args": ["gExsrmBfeG8mHub03S", 1729528800798, "e32f66ee5d0d5ead24b72a7b41f74f4e5eeb437be784fc293c1a9376a5dce9b9"]}'
+2024-10-21 18:39:59,799 - DEBUG - ++Sent raw: b'\x81\xdb\x01\xf6\xd5\xb2z\xd4\xba\xc2#\xcc\xf5\x90r\x83\xb7\xc1b\x84\xbc\xd0d\xd4\xf9\x92#\x84\xb0\xc3^\x9f\xb1\x90;\xd6\xf7\x86b\xcf\xb0\xd60\xce\xb4\x9fe\xcf\xb1\x8a,\xc2\xe7\xd02\xdb\xb7\xd38\xcf\xf8\x856\xc2\xe7\x832\x93\xed\x8a3\xc7\xb7\x90-\xd6\xf7\xd3s\x91\xa6\x90;\xd6\x8e\x90q\x99\xa6\xdbu\x9f\xba\xdc#\xab\xa8'
+2024-10-21 18:39:59,799 - DEBUG - ++Sent decoded: fin=1 opcode=1 data=b'{"op": "subscribe", "req_id": "4c9ed18a-d9d8-42b3-ba99-774213e8821b", "args": ["position"]}'
+2024-10-21 18:40:00,258 - DEBUG - ++Rcv raw: b'\x81P{"success":true,"ret_msg":"","op":"auth","conn_id":"crjtta1qo29j6gv0ald0-3mz5s"}'
+2024-10-21 18:40:00,258 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"success":true,"ret_msg":"","op":"auth","conn_id":"crjtta1qo29j6gv0ald0-3mz5s"}'
+2024-10-21 18:40:00,258 - DEBUG - ++Rcv raw: b'\x81~\x00\x85{"req_id":"4c9ed18a-d9d8-42b3-ba99-774213e8821b","success":true,"ret_msg":"","op":"subscribe","conn_id":"crjtta1qo29j6gv0ald0-3mz5s"}'
+2024-10-21 18:40:00,258 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"req_id":"4c9ed18a-d9d8-42b3-ba99-774213e8821b","success":true,"ret_msg":"","op":"subscribe","conn_id":"crjtta1qo29j6gv0ald0-3mz5s"}'
+2024-10-21 18:40:17,635 - DEBUG - ++Sent raw: b'\x81\x8e5\xd7\xcd\xfaN\xf5\xa2\x8a\x17\xed\xed\xd8E\xbe\xa3\x9d\x17\xaa'
+2024-10-21 18:40:17,635 - DEBUG - ++Sent decoded: fin=1 opcode=1 data=b'{"op": "ping"}'
+2024-10-21 18:40:18,092 - DEBUG - ++Rcv raw: b'\x81j{"success":true,"ret_msg":"pong","conn_id":"9b99a6a6-a7ee-45c1-9d0a-d92ff7a57886","req_id":"","op":"ping"}'
+2024-10-21 18:40:18,092 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"success":true,"ret_msg":"pong","conn_id":"9b99a6a6-a7ee-45c1-9d0a-d92ff7a57886","req_id":"","op":"ping"}'
+2024-10-21 18:40:19,809 - DEBUG - ++Sent raw: b"\x81\x8e\x05OI\xa9~m&\xd9'ui\x8bu&'\xce'2"
+2024-10-21 18:40:19,809 - DEBUG - ++Sent decoded: fin=1 opcode=1 data=b'{"op": "ping"}'
+2024-10-21 18:40:19,968 - DEBUG - ++Sent raw: b'\x88\x82S\x04$9P\xec'
+2024-10-21 18:40:19,968 - DEBUG - ++Sent decoded: fin=1 opcode=8 data=b'\x03\xe8'
+2024-10-21 18:40:20,250 - DEBUG - ++Rcv raw: b'\x81M{"op":"pong","args":["1729528820707"],"conn_id":"crjtta1qo29j6gv0ald0-3mz5s"}'
+2024-10-21 18:40:20,250 - DEBUG - ++Rcv decoded: fin=1 opcode=1 data=b'{"op":"pong","args":["1729528820707"],"conn_id":"crjtta1qo29j6gv0ald0-3mz5s"}'

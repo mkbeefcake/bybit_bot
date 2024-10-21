@@ -21,29 +21,52 @@ logging.basicConfig(
 MAX_SIZE = 5
 
 class BybitWebSocket:
-    def __init__(self, api_key, api_secret, symbol, testnet=False):
-        self.ws = WebSocket(testnet=testnet, channel_type="linear", api_key=api_key, api_secret=api_secret, trace_logging=True)
+    BYBIT_ORDER_LEVEL_1 = 1
+    BYBIT_ORDER_LEVEL_50 = 50
+    BYBIT_ORDER_LEVEL_200 = 200
+    BYBIT_ORDER_LEVEL_500 = 500
+
+    def __init__(self, api_key, api_secret, symbols, testnet=False):
+        self.ws = WebSocket(testnet=testnet, 
+                            channel_type="linear", 
+                            api_key=api_key, 
+                            api_secret=api_secret, 
+                            trace_logging=True)
+        
+        self.private_ws = WebSocket(testnet=testnet, 
+                                    channel_type="private", 
+                                    api_key=api_key, 
+                                    api_secret=api_secret, 
+                                    trace_logging=True)
+        
+
         self.position_queue = FixedSizeQueue(max_size=MAX_SIZE)
         self.running = True
-        self.symbol = symbol
+        self.symbols = symbols
 
     def handle_orderbook(self, message):
         print(f"orderbook message: {message}")
-        self.position_queue.push(message)
+        pass
 
     def handle_position(self, message):
         print(f"position message: {message}")
+        pass
 
     def run(self):
-        print(f"Runner function: started")
-        # self.ws.orderbook_stream(10, self.symbol, self.handle_orderbook)
-        self.ws.position_stream(self.handle_position)
+        print(f"Run() : Started..........")
+
+        # Get position information
+        self.private_ws.position_stream(self.handle_position)
+        
+        # get order information
+        # for symbol in self.symbols:
+        #     self.ws.orderbook_stream(BybitWebSocket.BYBIT_ORDER_LEVEL_50, symbol, self.handle_orderbook)
+
+        # Run thread until it marked as running == False
         while self.running == True:
             time.sleep(1)
-        print("Runner function is closed")
 
-    def stop(self):
-        self.running = False
+        # close the websocket
         try:
             self.ws.exit()
             print("Websocket is closed")
@@ -51,15 +74,23 @@ class BybitWebSocket:
             print("Error closing websocket: ", e)
         pass
 
-    def get_one(self):
-        return self.position_queue.pop()
+        print("Run() : Stopped............")
+
+    def stop(self):
+        self.running = False
+
+    # def get_one(self):
+    #     return self.position_queue.pop()
     
-    def get_all(self):
-        return self.position_queue.pop_all()
+    # def get_all(self):
+    #     return self.position_queue.pop_all()
 
 
 def main(account):
-    websocket = BybitWebSocket(api_key=account['api_key'], api_secret=account['api_secret'], testnet=True, symbol="BTCUSDT")
+    websocket = BybitWebSocket(api_key=account['api_key'], 
+                               api_secret=account['api_secret'], 
+                               testnet=True, 
+                               symbols=["BTCUSDT"])
 
     # Start the WebSocket thread
     ws_thread = threading.Thread(target=websocket.run)

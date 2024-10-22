@@ -10,13 +10,11 @@ class FixedSizeQueue:
     def push(self, item):
         with self.lock:
             self.queue.append(item)  # Append item (oldest will be discarded if full)
-            print(f'Pushed: {item}, Current Queue: {list(self.queue)}')
 
     def pop(self):
         with self.lock:
             if self.queue:
                 item = self.queue.popleft()  # Pop the oldest item
-                print(f'Popped: {item}, Current Queue: {list(self.queue)}')
                 return item
             else:
                 return None  # Return None if the queue is empty
@@ -26,7 +24,6 @@ class FixedSizeQueue:
             if self.queue:
                 items = list(self.queue)
                 self.queue.clear()
-                print(f"Popped all: {items}, Queue is now empty.")
                 return items
 
     def is_empty(self):

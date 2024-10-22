@@ -11,11 +11,11 @@ from datatypes import serialize_order_book_response
 
 # Get the cacert.pem path and set SSL_CERT_FILE dynamically for websocket communication
 os.environ['SSL_CERT_FILE'] = certifi.where()
-print(certifi.where())
+logging.info(certifi.where())
 
 # Setup logging
 logging.basicConfig(
-    filename='websocket_bot.log',
+    filename='bybit.log',
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
@@ -31,13 +31,15 @@ class BybitWebSocketWrapper:
     lock = threading.Lock()
 
     @classmethod
-    def get_session(cls, api_key, api_secret, symbols, testnet=False) -> 'BybitWebSocket':
+    def get_session(cls, api_key, api_secret, symbols=[], testnet=False) -> 'BybitWebSocket':
         if not api_key:
             raise ValueError("API Key must be provided")
 
         with cls.lock:
-            if api_key in cls.all_sockets:
-                return cls.all_sockets[api_key]
+            if api_key in cls.all_sockets:     
+                websocket: BybitWebSocket = cls.all_sockets[api_key]
+                websocket.set_symbols(list(set(websocket.get_symbols() + symbols)))
+                return websocket
             else:
                 cls.all_sockets[api_key] = BybitWebSocket(
                     api_key=api_key,
@@ -45,6 +47,7 @@ class BybitWebSocketWrapper:
                     symbols=symbols,
                     testnet=testnet
                 )
+                cls.all_sockets[api_key].start()
                 return cls.all_sockets[api_key]
 
 
@@ -52,7 +55,9 @@ class ByBitWebsocketTradingOrder:
     def __init__(self, api_key, api_secret, symbols=[], testnet=False):
         self.trading = WebSocketTrading(testnet=testnet, 
                             api_key=api_key, 
-                            api_secret=api_secret)
+                            api_secret=api_secret,
+                            ping_interval=None,
+                            trace_logging=False)
         pass
 
     # Trading : Update order
@@ -67,13 +72,14 @@ class ByBitWebsocketTradingOrder:
         pass
 
     # Trading : Cancel order
-    def cancel_order(self, category, symbol, order_id):
-        self.trading.cancel_order(
-            None,
-            category=category,
-            symbol=symbol,
-            order_id=order_id
-        )
+    def cancel_order(self, category, symbol, orderId):
+        if orderId != '':
+            self.trading.cancel_order(
+                None,
+                category=category,
+                symbol=symbol,
+                order_id=orderId
+            )
 
     # Trading : Create order
     def place_order(self, category, symbol, side, orderType, price, qty, timeInForce="PostOnly", reduceOnly = False):
@@ -96,7 +102,8 @@ class ByBitWebSocketPublicStream:
         self.ws = WebSocket(testnet=testnet, 
                             channel_type="linear", 
                             api_key=api_key, 
-                            api_secret=api_secret, 
+                            api_secret=api_secret,
+                            ping_interval=None, 
                             trace_logging=False)
 
         self.orderbook_queue = FixedSizeQueue(max_size=1)
@@ -145,6 +152,7 @@ class ByBitWebSocketPrivateStream:
                                     channel_type="private", 
                                     api_key=api_key, 
                                     api_secret=api_secret, 
+                                    ping_interval=None,
                                     trace_logging=False)
         self.testnet = testnet
         self.api_key = api_key
@@ -162,31 +170,38 @@ class ByBitWebSocketPrivateStream:
 
     # Handler Function : Position
     def handle_position(self, message):
-        print(f"handle_position: {message}")
+        logging.info(f"handle_position: {message}")
         
-        for data in message.data:
+        for data in message['data']:
             with self.position_lock:
                 category = data["category"]
                 symbol = data["symbol"]
-                self.open_positions[(category, symbol)] = data
+                if data['positionStatus'] == 'Normal':
+                    self.open_positions[(category, symbol)] = []
+                else:
+                    self.open_positions[(category, symbol)] = [data]
 
         pass
 
     # Handler Function : Order
     def handle_orders(self, message):
-        print(f"handle_orders: {message}")
+        logging.info(f"handle_orders: {message}")
 
-        for data in message.data:
+        for data in message['data']:
             with self.order_lock:
                 category = data['category']
                 symbol = data['symbol']
-                self.open_orders[(category, symbol)] = data
+                
+                if data['orderStatus'] == 'Filled' or data['orderStatus'] == 'Cancelled':
+                    self.open_orders[(category, symbol)] = []
+                else:
+                    self.open_orders[(category, symbol)] = [data]
 
     # Handler Function : Wallet
     def handle_wallet(self, message):
-        print(f"handle_wallet: {message}")
+        logging.info(f"handle_wallet: {message}")
 
-        for data in message.data:
+        for data in message['data']:
             with self.wallet_lock:
                 account_type = data["accountType"]
                 self.wallet_balance[account_type] = data
@@ -294,9 +309,15 @@ class BybitWebSocket(ByBitWebsocketTradingOrder, ByBitWebSocketPublicStream, ByB
         self.running = False
         self.symbols = symbols    
 
+    def get_symbols(self):
+        return self.symbols
+    
+    def set_symbols(self, symbols):
+        self.symbols = symbols
+
     # main running thread
     def run(self):
-        print(f"Run() : Started..........")
+        logging.info(f"Run() : Started..........")
 
         self.register_private_stream()
         self.register_public_stream(self.symbols)
@@ -305,7 +326,7 @@ class BybitWebSocket(ByBitWebsocketTradingOrder, ByBitWebSocketPublicStream, ByB
         while self.running == True:
             time.sleep(1)
 
-        print("Run() : Stopped............")
+        logging.info("Run() : Stopped............")
 
     def start(self):
         self.ws_thread = threading.Thread(target=self.run)
@@ -319,32 +340,32 @@ class BybitWebSocket(ByBitWebsocketTradingOrder, ByBitWebSocketPublicStream, ByB
 
 
 
-def main(account):
-    websocket = BybitWebSocket(api_key=account['api_key'], 
-                               api_secret=account['api_secret'], 
-                               testnet=True, 
-                               symbols=["BTCUSDT"])
+# def main(account):
+#     websocket = BybitWebSocket(api_key=account['api_key'], 
+#                                api_secret=account['api_secret'], 
+#                                testnet=True, 
+#                                symbols=["BTCUSDT"])
 
-    websocket.start()
-    time.sleep(3)
+#     websocket.start()
+#     time.sleep(3)
 
-    websocket.get_positions("linear", "BTCUSDT")
-    # websocket.place_order(category="linear",
-    #                         symbol="BTCUSDT",
-    #                         side="Sell",
-    #                         orderType="Limit",
-    #                         price="90000",
-    #                         qty="0.01",
-    #                         timeInForce="PostOnly")
-    time.sleep(30)
-    websocket.stop()
-    websocket.get_last_orderbook()
+#     websocket.get_positions("linear", "BTCUSDT")
+#     # websocket.place_order(category="linear",
+#     #                         symbol="BTCUSDT",
+#     #                         side="Sell",
+#     #                         orderType="Limit",
+#     #                         price="90000",
+#     #                         qty="0.01",
+#     #                         timeInForce="PostOnly")
+#     time.sleep(30)
+#     websocket.stop()
+#     websocket.get_last_orderbook()
 
-# Example usage
-account = {
-    'api_key': 'gExsrmBfeG8mHub03S',
-    'api_secret': '0moXJICRFwXRnnAPDTtk3xcUzRuugHor8PAf'
-}
+# # Example usage
+# account = {
+#     'api_key': 'gExsrmBfeG8mHub03S',
+#     'api_secret': '0moXJICRFwXRnnAPDTtk3xcUzRuugHor8PAf'
+# }
 
-if __name__ == "__main__":
-    main(account)
+# if __name__ == "__main__":
+#     main(account)

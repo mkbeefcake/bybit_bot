@@ -1,7 +1,6 @@
 import datetime
 import time
 import json
-from pybit.unified_trading import HTTP
 import requests
 import threading
 from pybit.exceptions import InvalidRequestError
@@ -13,7 +12,7 @@ import requests
 import pandas as pd
 import ccxt
 from datetime import timedelta
-
+from bybit import BybitWebSocketWrapper, BybitWebSocket
 
 m_valid_qty=0
 m_side = "DEFAULT"
@@ -126,7 +125,7 @@ def updates_sync():
 
 
 def fetch_qty(account, symbols=["BTCUSDT"]):
-    session = HTTP(testnet=m_testnet, api_key=account['api_key'], api_secret=account['api_secret'])
+    session : BybitWebSocket = BybitWebSocketWrapper.get_session(testnet=m_testnet, api_key=account['api_key'], api_secret=account['api_secret'])
 
     try:
         # Fetch open positions first to get the qty
@@ -134,11 +133,10 @@ def fetch_qty(account, symbols=["BTCUSDT"]):
             open_positions = session.get_positions(category="linear", symbol=symbol)
             logging.info(f"open_positions is {open_positions}")
 
-            if open_positions['retCode'] == 0 and open_positions['result']['list']:
-                for position in open_positions['result']['list']:
-                    if position['size'] != '0':
-                        qty = float(position['size'])  # Extract and return the size as qty
-                        return qty
+            for position in open_positions:
+                if position['size'] != '0':
+                    qty = float(position['size'])  # Extract and return the size as qty
+                    return qty
 
         # If no open positions found, check open orders
         #for symbol in symbols:
@@ -259,18 +257,18 @@ def validate_positive_float(value):
     return fvalue
 
 def get_max_quantity(account, symbol="BTCUSDT", entry_limit=2000):
-    session = HTTP(testnet=m_testnet, api_key=account['api_key'], api_secret=account['api_secret'])
+    session : BybitWebSocket = BybitWebSocketWrapper.get_session(testnet=m_testnet, api_key=account['api_key'], api_secret=account['api_secret'])
     print(f"entry_limit is {entry_limit}")
     # Get the available USDT balance
     balance_info = session.get_wallet_balance(accountType="UNIFIED", coin="USDT")
-    available_balance = float(balance_info['result']['list'][0]['coin'][0]['walletBalance'])
+    available_balance = float(balance_info[0]['coin'][0]['walletBalance'])
     
     # Assuming 99% of the available balance can be used
     available_balance = available_balance * 0.95
     
     # Fetch leverage for the symbol
     leverage_info = session.get_positions(category="linear", symbol=symbol)
-    leverage = float(leverage_info['result']['list'][0]['leverage'])
+    leverage = float(leverage_info[0]['leverage'])
 
     # Calculate the maximum position size considering leverage
     max_position_value = available_balance * leverage
@@ -297,12 +295,11 @@ def get_max_quantity(account, symbol="BTCUSDT", entry_limit=2000):
 
 
 def has_open_orders(account, symbols=["BTCUSDT"]):
-    session = HTTP(testnet=m_testnet, api_key=account['api_key'], api_secret=account['api_secret'])
-    
+    session : BybitWebSocket = BybitWebSocketWrapper.get_session(testnet=m_testnet, api_key=account['api_key'], api_secret=account['api_secret'])
     try:
         for symbol in symbols:
             open_orders = session.get_open_orders(category="linear", symbol=symbol)
-            if open_orders['result']['list']:
+            if len(open_orders) != 0:
                 return "True"
         return "False"
     except Exception as e:
@@ -310,16 +307,14 @@ def has_open_orders(account, symbols=["BTCUSDT"]):
         return "False"
 
 def get_open_order_ids(account, symbols=["BTCUSDT"]):
-    session = HTTP(testnet=m_testnet, api_key=account['api_key'], api_secret=account['api_secret'])
-    
+    session : BybitWebSocket = BybitWebSocketWrapper.get_session(testnet=m_testnet, api_key=account['api_key'], api_secret=account['api_secret'])
     try:
         order_ids = []
 
         for symbol in symbols:
             open_orders = session.get_open_orders(category="linear", symbol=symbol)
-            if open_orders['result']['list']:
-                for order in open_orders['result']['list']:
-                    order_ids.append(order['orderId'])
+            for order in open_orders:
+                order_ids.append(order['orderId'])
         
 
         if order_ids:
@@ -334,8 +329,7 @@ def get_open_order_ids(account, symbols=["BTCUSDT"]):
         return "False"
 
 def get_trade_ids(account, symbols=["BTCUSDT"]):
-    session = HTTP(testnet=m_testnet, api_key=account['api_key'], api_secret=account['api_secret'])
-    
+    session : BybitWebSocket = BybitWebSocketWrapper.get_session(testnet=m_testnet, api_key=account['api_key'], api_secret=account['api_secret'])
     try:
         trade_ids = []
 
@@ -343,10 +337,9 @@ def get_trade_ids(account, symbols=["BTCUSDT"]):
             open_positions = session.get_positions(category="linear", symbol=symbol)
             logging.info(f"open_positions for {symbol}: {open_positions}")
             
-            if open_positions['retCode'] == 0:
-                for position in open_positions['result']['list']:
-                    if position['size'] != '0':
-                        trade_ids.append(position['positionIdx'])
+            for position in open_positions['result']['list']:
+                if position['size'] != '0':
+                    trade_ids.append(position['positionIdx'])
         if 'trade_id' not in account:
             account['trade_id']=[]
         
@@ -360,15 +353,14 @@ def get_trade_ids(account, symbols=["BTCUSDT"]):
 
 
 def has_open_trades(account, symbols=["BTCUSDT"]):
-    session = HTTP(testnet=m_testnet, api_key=account['api_key'], api_secret=account['api_secret'])
+    session : BybitWebSocket = BybitWebSocketWrapper.get_session(testnet=m_testnet, api_key=account['api_key'], api_secret=account['api_secret'])
     try:
         for symbol in symbols:
             open_positions = session.get_positions(category="linear", symbol=symbol)
             #print(f"open_positions returns {open_positions}")
-            if open_positions['retCode'] == 0:
-                for position in open_positions['result']['list']:
-                    if position['size'] != '0':
-                        return "True"
+            for position in open_positions['result']['list']:
+                if position['size'] != '0':
+                    return "True"
         
             return "False"
     except Exception as e:
@@ -382,7 +374,8 @@ def clean_order_id(order_id):
     return order_id
 
 def place_close_by_order(account,prediction,side,qty):
-    session = HTTP(testnet=m_testnet, api_key=account['api_key'], api_secret=account['api_secret'])
+    session : BybitWebSocket = BybitWebSocketWrapper.get_session(testnet=m_testnet, api_key=account['api_key'], api_secret=account['api_secret'])
+
     logging.info("entered place_close_by_order")
     logging.info(f"inside place_close_by_order we have close_by_price = {prediction}")
     logging.info(f"inside place_close_by_order we have side = {side} and qty = {qty}")
@@ -394,8 +387,8 @@ def place_close_by_order(account,prediction,side,qty):
             orderType="Limit",
             price=prediction,  # Target close price
             qty=str(round(float(qty), 3)),  # Same quantity as the initial trade
-            timeInForce="GTC",
-            reduceOnly=True
+            timeInForce="PostOnly",  # replace "GTC" to "PostOnly"
+            reduceOnly=False # True to False
         )
         logging.info(f"Close By order placed at {account['closeby_price']} with response {close_order_response}")
         x=True
@@ -403,8 +396,9 @@ def place_close_by_order(account,prediction,side,qty):
         x=False
         logging.error(f"Error placing close-by order: {e}")
     return x
+
 def cancel_pending_order(account, order_id):
-    session = HTTP(testnet=m_testnet, api_key=account['api_key'], api_secret=account['api_secret'])
+    session : BybitWebSocket = BybitWebSocketWrapper.get_session(testnet=m_testnet, api_key=account['api_key'], api_secret=account['api_secret'])
     cleaned_order_id = clean_order_id(order_id)  # Ensure we clean the order ID
 
     try:
@@ -435,9 +429,9 @@ def monitorTrades(account_manager):
         account['timestamp'] = datetime.datetime.now()
 
 def getEntryLimit(account, symbol="BTCUSDT"):
-    session = HTTP(testnet=m_testnet, api_key=account['api_key'], api_secret=account['api_secret'])
-    ticker_data = session.get_tickers(category="linear", symbol=symbol)
-    last_price = float(ticker_data['result']['list'][0]['lastPrice'])
+    session : BybitWebSocket = BybitWebSocketWrapper.get_session(testnet=m_testnet, api_key=account['api_key'], api_secret=account['api_secret'])
+    ticker_data = session.get_last_ticker(category="linear", symbol=symbol)
+    last_price = float(ticker_data[0]['lastPrice'])
     return last_price
 
 def GetPredictions(step, account, currency="BTC", exchange="BYBIT", type="FUTURES"):
@@ -622,7 +616,7 @@ class TradeExecutor:
         logging.info("Setting leverage for all accounts.")
         for account in self.account_manager.accounts:
             if has_open_trades(account) == "False" and has_open_orders(account) == "False":
-                session = HTTP(testnet=m_testnet, api_key=account['api_key'], api_secret=account['api_secret'])
+                session : BybitWebSocket = BybitWebSocketWrapper.get_session(testnet=m_testnet, api_key=account['api_key'], api_secret=account['api_secret'])
                 try:
                     leverage_response = session.set_leverage(
                         category="linear",
@@ -656,7 +650,7 @@ class TradeExecutor:
 
                 
                 logging.info(f"Entering trade with account {account['api_key']}")
-                session = HTTP(testnet=m_testnet, api_key=account['api_key'], api_secret=account['api_secret'])
+                session : BybitWebSocket = BybitWebSocketWrapper.get_session(testnet=m_testnet, api_key=account['api_key'], api_secret=account['api_secret'])
                 if(res - entry_limit > 0):
                     #account['side'] = "Buy"
                     side = "Buy"
@@ -676,7 +670,7 @@ class TradeExecutor:
                         orderType="Limit",  
                         price=str(entry_limit),
                         qty=str(round(valid_qty, 3)),  
-                        timeInForce="GTC"
+                        timeInForce="PostOnly"      # GTC to PostOnly
                     )
                     logging.info(f"Order placed at {entry_limit} with response {order_response}")
                     order_id = order_response['result']['orderId']

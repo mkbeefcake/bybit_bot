@@ -58,6 +58,13 @@ class ByBitWebsocketTradingOrder:
                             api_secret=api_secret,
                             ping_interval=None,
                             trace_logging=False)
+        
+        self.place_order_event = threading.Event()
+        self.amend_order_event = threading.Event()
+        self.cancel_order_event = threading.Event()
+        pass
+
+    def handle_amend_order_message(self, message):
         pass
 
     # Trading : Update order
@@ -71,6 +78,9 @@ class ByBitWebsocketTradingOrder:
         )
         pass
 
+    def handle_cancel_order_message(self, message):
+        pass
+
     # Trading : Cancel order
     def cancel_order(self, category, symbol, orderId):
         if orderId != '':
@@ -81,10 +91,16 @@ class ByBitWebsocketTradingOrder:
                 order_id=orderId
             )
 
+    _order_id = ""
+    def handle_place_order_message(self, message):
+        self._order_id = message['data']['orderId']
+        self.place_order_event.set()
+        pass
+
     # Trading : Create order
     def place_order(self, category, symbol, side, orderType, price, qty, timeInForce="PostOnly", reduceOnly = False):
         self.trading.place_order(
-            None,
+            self.handle_place_order_message,
             category=category,
             symbol=symbol,
             side=side,
@@ -94,7 +110,11 @@ class ByBitWebsocketTradingOrder:
             timeInForce=timeInForce,
             reduceOnly=reduceOnly
         )
-        pass
+        self.place_order_event.wait()
+        order_id = self._order_id
+
+        self._order_id = ""
+        return order_id
 
 
 class ByBitWebSocketPublicStream:
@@ -111,9 +131,13 @@ class ByBitWebSocketPublicStream:
         self.ticker_queue = FixedSizeQueue(max_size=MAX_SIZE)
         pass
 
-    def get_last_item(self, queue):
+    def get_last_item(self, queue, symbol=None):
         items = queue.pop_all()
-        return items[-1] if items else None
+        if symbol == None:
+            return items[-1] if items else None
+        else:
+            _items = [item for item in items if item['symbol'] == symbol]
+            return _items[-1] if _items else None
 
     def get_last_orderbook(self):
         return self.get_last_item(self.orderbook_queue)
@@ -121,8 +145,8 @@ class ByBitWebSocketPublicStream:
     def get_last_trade(self):
         return self.get_last_item(self.trade_queue)
 
-    def get_last_ticker(self):
-        return self.get_last_item(self.ticker_queue)
+    def get_last_ticker(self, category, symbol):
+        return self.get_last_item(self.ticker_queue, symbol=symbol)
 
     # Handler Function : Trade
     def handle_trade(self, message):
@@ -136,7 +160,7 @@ class ByBitWebSocketPublicStream:
 
     # Handler Function : Ticker
     def handle_ticker(self, message):
-        self.ticker_queue.push(message)
+        self.ticker_queue.push(message['data'])
         pass
 
     def register_public_stream(self, symbols):
@@ -204,7 +228,7 @@ class ByBitWebSocketPrivateStream:
         for data in message['data']:
             with self.wallet_lock:
                 account_type = data["accountType"]
-                self.wallet_balance[account_type] = data
+                self.wallet_balance[account_type] = [data]
 
     def register_private_stream(self):
         self.private_ws.order_stream(callback=self.handle_orders)

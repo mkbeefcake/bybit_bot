@@ -1,4 +1,5 @@
 import datetime
+from datetime import timezone
 import time
 import json
 import requests
@@ -224,7 +225,8 @@ def sync_account(api_key, api_secret, has_open_trades, has_open_orders, order_id
 def sync_account_prediction(api_key, prediction_price, prediction_time, source):
     url = "https://cryptopredictor.ai/bot_insert_prediction.php"
     
-    timestamp = datetime.datetime.now()            
+    timestamp = datetime.datetime.now()
+    timestamp = timestamp.astimezone(timezone.utc)
     data = {
         'api_key': api_key,
         'timestamp': timestamp.strftime('%Y-%m-%d %H:%M:%S'),
@@ -264,7 +266,7 @@ def get_max_quantity(account, symbol="BTCUSDT", entry_limit=2000):
     session : BybitWebSocket = BybitWebSocketWrapper.get_session(testnet=m_testnet, api_key=account['api_key'], api_secret=account['api_secret'], symbols=[symbol])
     print(f"entry_limit is {entry_limit}")
     # Get the available USDT balance
-    balance_info = session.get_wallet_balance(accountType="UNIFIED", coin="USDT")
+    balance_info = session.get_wallet_balance(account_type="UNIFIED", coin="USDT")
     available_balance = float(balance_info[0]['coin'][0]['walletBalance'])
     
     # Assuming 99% of the available balance can be used
@@ -435,7 +437,7 @@ def monitorTrades(account_manager):
 def getEntryLimit(account, symbol="BTCUSDT"):
     session : BybitWebSocket = BybitWebSocketWrapper.get_session(testnet=m_testnet, api_key=account['api_key'], api_secret=account['api_secret'], symbols=[symbol])
     ticker_data = session.get_last_ticker(category="linear", symbol=symbol)
-    last_price = float(ticker_data[0]['lastPrice'])
+    last_price = float(ticker_data['lastPrice'])
     return last_price
 
 def GetPredictions(step, account, currency="BTC", exchange="BYBIT", type="FUTURES"):
@@ -461,17 +463,21 @@ def GetPredictions(step, account, currency="BTC", exchange="BYBIT", type="FUTURE
                 prediction_time_str = prediction_data.get('Time')
                 prediction_price = float(prediction_data.get('Price', "CallAgain"))
                 now = datetime.datetime.now()
-                current_time_str = now.strftime('%H:%M:%S')
-                prediction_time = datetime.datetime.combine(now.date(), datetime.datetime.strptime(prediction_time_str, '%H:%M:%S').time())
-                prediction_time += timedelta(hours=3)
-                current_time = now.replace(second=0, microsecond=0)
+                now = now.astimezone(timezone.utc)
+
+                prediction_time = datetime.datetime.strptime(prediction_time_str, '%H:%M:%S').time()
+                current_time = now.replace(second=0, microsecond=0).time()
+
+                today = datetime.datetime.today()
+                prediction_time = datetime.datetime.combine(today, prediction_time)
+                current_time = datetime.datetime.combine(today, current_time)
 
                 logging.info(f"Current Time: {current_time.strftime('%Y-%m-%d %H:%M:%S')}")
                 logging.info(f"Prediction Time: {prediction_time.strftime('%Y-%m-%d %H:%M:%S')}")
 
                 time_difference = (prediction_time - current_time).total_seconds() / 60
                 logging.info(f"Time difference is {time_difference}")
-                if time_difference == 0:
+                if abs(time_difference) < 15:
                     logging.info("Entering sync_account_prediction")
                     logging.info(f"prediction price is: {prediction_price}")
                     logging.info(f"prediction time is: {prediction_time}")
@@ -667,7 +673,7 @@ class TradeExecutor:
                 try:
                     valid_qty = get_max_quantity(account, symbol="BTCUSDT", entry_limit=entry_limit)
                     
-                    order_response = session.place_order(
+                    order_id = session.place_order(
                         category="linear",
                         symbol="BTCUSDT",
                         side=side,  
@@ -676,8 +682,8 @@ class TradeExecutor:
                         qty=str(round(valid_qty, 3)),  
                         timeInForce="PostOnly"      # GTC to PostOnly
                     )
-                    logging.info(f"Order placed at {entry_limit} with response {order_response}")
-                    order_id = order_response['result']['orderId']
+                    print(f"Linear/BTCUSDT : {side}, {entry_limit}, {round(valid_qty, 3)}")
+                    logging.info(f"Order placed at {entry_limit} with response {order_id}")                    
                     
                     time.sleep(2)
                     ret_account=get_account_status(account['api_key'])        

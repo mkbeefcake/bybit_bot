@@ -41,17 +41,20 @@ class BybitWebSocket:
         
 
         self.position_queue = FixedSizeQueue(max_size=MAX_SIZE)
-        self.running = True
+        self.running = False
         self.symbols = symbols
 
-    def handle_orderbook(self, message):
-        print(f"orderbook message: {message}")
-        pass
-
+    # handle position function
     def handle_position(self, message):
         print(f"position message: {message}")
         pass
 
+    # handle orderbook function
+    def handle_orderbook(self, message):
+        print(f"orderbook message: {message}")
+        pass
+
+    # main running thread
     def run(self):
         print(f"Run() : Started..........")
 
@@ -76,8 +79,18 @@ class BybitWebSocket:
 
         print("Run() : Stopped............")
 
+    def start(self):
+        self.ws_thread = threading.Thread(target=self.run)
+        self.ws_thread.start()
+        self.running = True
+        print("Start command !..................")
+        pass
+
     def stop(self):
         self.running = False
+        self.ws_thread.join()
+        print("Stop command !..................")
+
 
     # def get_one(self):
     #     return self.position_queue.pop()
@@ -92,14 +105,9 @@ def main(account):
                                testnet=True, 
                                symbols=["BTCUSDT"])
 
-    # Start the WebSocket thread
-    ws_thread = threading.Thread(target=websocket.run)
-    ws_thread.start()
-
+    websocket.start()
     time.sleep(20)
-
-    websocket.stop()  # Stop the WebSocket connection gracefully
-    ws_thread.join()  # Wait for WebSocket thread to finish
+    websocket.stop()
 
 # Example usage
 account = {

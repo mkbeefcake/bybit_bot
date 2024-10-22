@@ -4,12 +4,8 @@ from fixed_size_queue import FixedSizeQueue
 from pybit.unified_trading import WebSocketTrading, WebSocket
 import time
 import os
-import ssl
 import certifi
-import json
-
-from dataclasses import dataclass
-from typing import List, Tuple
+from datatypes import serialize_order_book_response
 
 
 # Get the cacert.pem path and set SSL_CERT_FILE dynamically for websocket communication
@@ -27,58 +23,7 @@ BYBIT_ORDER_LEVEL_1 = 1
 BYBIT_ORDER_LEVEL_50 = 50
 BYBIT_ORDER_LEVEL_200 = 200
 BYBIT_ORDER_LEVEL_500 = 500
-MAX_SIZE = 5
-
-@dataclass
-class OrderBookResponse:
-    topic: str
-    type: str
-    ts: int
-    data: 'OrderBookData'
-    cts: int
-
-@dataclass
-class OrderBookData:
-    s: str  # Symbol
-    b: List[Tuple[str, str]]  # Bid prices and quantities
-    a: List[Tuple[str, str]]  # Ask prices and quantities
-    u: int  # Update ID
-    seq: int  # Sequence number
-
-def serialize_order_book_response(message) -> OrderBookResponse:
-    """Deserialize a JSON message into an OrderBookSnapshot instance."""
-    try:
-        order_book_json = message
-
-        # Create OrderBookData instance
-        order_book_data = OrderBookData(
-            s=order_book_json['data']['s'],
-            b=[[bid[0], bid[1]] for bid in order_book_json['data']['b']],
-            a=[[ask[0], ask[1]] for ask in order_book_json['data']['a']],
-            u=order_book_json['data']['u'],
-            seq=order_book_json['data']['seq']
-        )
-
-        # Create OrderBookSnapshot instance
-        order_book_snapshot = OrderBookResponse(
-            topic=order_book_json['topic'],
-            type=order_book_json['type'],
-            ts=order_book_json['ts'],
-            data=order_book_data,
-            cts=order_book_json['cts']
-        )
-
-        return order_book_snapshot
-    
-    except json.JSONDecodeError as e:
-        print(f"JSON Decode Error: {e}")
-        return None
-    except KeyError as e:
-        print(f"Missing key in JSON data: {e}")
-        return None
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        return None
+MAX_SIZE = 20
 
 
 class BybitWebSocketWrapper:
@@ -102,8 +47,8 @@ class BybitWebSocketWrapper:
                 )
                 return cls.all_sockets[api_key]
 
-class BybitWebSocket:
 
+class BybitWebSocket:
     def __init__(self, api_key, api_secret, symbols=[], testnet=False):
         self.ws = WebSocket(testnet=testnet, 
                             channel_type="linear", 
@@ -117,52 +62,96 @@ class BybitWebSocket:
                                     api_secret=api_secret, 
                                     trace_logging=False)
         
+        self.trading = WebSocketTrading(testnet=testnet, 
+                            api_key=api_key, 
+                            api_secret=api_secret)
 
-        self.position_queue = FixedSizeQueue(max_size=1)
+        self.orderbook_queue = FixedSizeQueue(max_size=1)
+        self.trade_queue = FixedSizeQueue(max_size=20)
+
         self.running = False
         self.symbols = symbols
 
-    # handle position function
-    def handle_position(self, message):
-        print(f"position message: {message}")
-        pass
-
-    # handle orderbook function
-    def handle_orderbook(self, message):
-        response = serialize_order_book_response(message)
-        if response != None:
-            self.position_queue.push(response)
-        pass
-
     def get_last_orderbook(self):
-        all = self.position_queue.pop_all()
+        all = self.orderbook_queue.pop_all()
         if all == None:
             return None
         return all[-1]
-        
+    
+    def get_last_trade(self):
+        all = self.trade_queue.pop_all()
+        if all == None:
+            return None
+        return all[-1]        
+    
+    # Trading : Update order
+    def amend_order(self, category, symbol, order_id, qty):
+        self.trading.amend_order(
+            None,
+            category=category,
+            symbol=symbol,
+            order_id=order_id,
+            qty=qty
+        )
+        pass
+
+    # Trading : Cancel order
+    def cancel_order(self, category, symbol, order_id):
+        self.trading.cancel_order(
+            None,
+            category=category,
+            symbol=symbol,
+            order_id=order_id
+        )
+
+    # Trading : Create order
+    def create_order(self, category, symbol, side, orderType, price, qty, timeInForce="PostOnly"):
+        self.trading.place_order(
+            None,
+            category=category,
+            symbol=symbol,
+            side=side,
+            orderType=orderType,
+            price=price,
+            qty=qty,
+            timeInForce=timeInForce
+        )
+        pass
+
+    # Handler Function : Trade
+    def handle_trade(self, message):
+        self.trade_queue.push(message)
+        pass
+
+    # Handler Function : Orderbook
+    def handle_orderbook(self, message):
+        self.orderbook_queue.push(message)
+        pass
+
+    # Handler Function : Position
+    def handle_position(self, message):
+        print(f"handle_position: {message}")
+        pass
+
+    # Handler Function : Order
+    def handle_orders(self, message):
+        print(f"handle_orders: {message}")
 
     # main running thread
     def run(self):
         print(f"Run() : Started..........")
 
-        # Get position information
-        # self.private_ws.position_stream(self.handle_position)
-        
         # get order information
+        self.private_ws.order_stream(callback=self.handle_orders)
+        self.private_ws.position_stream(callback=self.handle_position)
+
         for symbol in self.symbols:
             self.ws.orderbook_stream(BYBIT_ORDER_LEVEL_50, symbol, self.handle_orderbook)
+            self.ws.trade_stream(symbol, self.handle_trade)
 
         # Run thread until it marked as running == False
         while self.running == True:
             time.sleep(1)
-
-        # close the websocket
-        try:
-            self.ws.exit()
-            print("Websocket is closed")
-        except Exception as e:
-            print("Error closing websocket: ", e)
-        pass
 
         print("Run() : Stopped............")
 
@@ -180,10 +169,10 @@ class BybitWebSocket:
 
 
     # def get_one(self):
-    #     return self.position_queue.pop()
+    #     return self.orderbook_queue.pop()
     
     # def get_all(self):
-    #     return self.position_queue.pop_all()
+    #     return self.orderbook_queue.pop_all()
 
 
 def main(account):
@@ -193,9 +182,18 @@ def main(account):
                                symbols=["BTCUSDT"])
 
     websocket.start()
-    time.sleep(10)
+    time.sleep(3)
+
+    # websocket.create_order(category="linear",
+    #                         symbol="BTCUSDT",
+    #                         side="Sell",
+    #                         orderType="Limit",
+    #                         price="90000",
+    #                         qty="0.01",
+    #                         timeInForce="PostOnly")
+    time.sleep(30)
     websocket.stop()
-    websocket.get_last_orderbook()
+    print(websocket.get_last_orderbook())
 
 # Example usage
 account = {

@@ -343,7 +343,7 @@ def get_trade_ids(account, symbols=["BTCUSDT"]):
             open_positions = session.get_positions(category="linear", symbol=symbol)
             logging.info(f"open_positions for {symbol}: {open_positions}")
             
-            for position in open_positions['result']['list']:
+            for position in open_positions:
                 if position['size'] != '0':
                     trade_ids.append(position['positionIdx'])
         if 'trade_id' not in account:

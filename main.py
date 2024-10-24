@@ -12,12 +12,13 @@ import os
 import requests
 import pandas as pd
 import ccxt
-from datetime import timedelta
 from bybit import BybitWebSocketWrapper, BybitWebSocket
 
 m_valid_qty=0
 m_side = "DEFAULT"
 m_testnet = True
+
+print(os.getcwd())
 
 # Setup logging
 logging.basicConfig(
@@ -25,6 +26,8 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
+
+logging.warning(f"Start!")
 
 def get_current(step=15, howMany=1):
     symbol = "BTC/USDT:USDT"

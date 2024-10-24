@@ -11,12 +11,12 @@ from datatypes import serialize_order_book_response
 
 # Get the cacert.pem path and set SSL_CERT_FILE dynamically for websocket communication
 os.environ['SSL_CERT_FILE'] = certifi.where()
-logging.info(certifi.where())
+logging.warning(certifi.where())
 
 # Setup logging
 logging.basicConfig(
     filename='bybit.log',
-    level=logging.INFO,
+    level=logging.warning,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
@@ -65,6 +65,7 @@ class ByBitWebsocketTradingOrder:
         pass
 
     def handle_amend_order_message(self, message):
+        logging.warning(f"amend_order: {message['data']['orderId']}")
         pass
 
     # Trading : Update order
@@ -79,6 +80,7 @@ class ByBitWebsocketTradingOrder:
         pass
 
     def handle_cancel_order_message(self, message):
+        logging.warning(f"cancel_order: {message['data']['orderId']}")
         pass
 
     # Trading : Cancel order
@@ -93,6 +95,7 @@ class ByBitWebsocketTradingOrder:
 
     _order_id = ""
     def handle_place_order_message(self, message):
+        logging.warning(f"place_order: {message['data']['orderId']}")
         self._order_id = message['data']['orderId']
         self.place_order_event.set()
         pass
@@ -150,16 +153,19 @@ class ByBitWebSocketPublicStream:
 
     # Handler Function : Trade
     def handle_trade(self, message):
+        logging.info(f"trade: {message['topic']} -- {message['ts']} -- {len(message['data'])}")
         self.trade_queue.push(message)
         pass
 
     # Handler Function : Orderbook
     def handle_orderbook(self, message):
+        logging.info(f"orderbook: {message['topic']} -- {message['ts']} -- {message['data']['s']}")
         self.orderbook_queue.push(message)
         pass
 
     # Handler Function : Ticker
     def handle_ticker(self, message):
+        logging.info(f"ticker: {message['topic']} -- {message['ts']} -- {message['data']['symbol']}")
         self.ticker_queue.push(message['data'])
         pass
 
@@ -194,13 +200,13 @@ class ByBitWebSocketPrivateStream:
 
     # Handler Function : Position
     def handle_position(self, message):
-        logging.info(f"handle_position: {message}")
+        logging.warning(f"position: {message['topic']} -- {message['creationTime']} -- {message['id']}")
         
         for data in message['data']:
             with self.position_lock:
                 category = data["category"]
                 symbol = data["symbol"]
-                if data['positionStatus'] == 'Normal':
+                if data['size'] == "0":
                     self.open_positions[(category, symbol)] = []
                 else:
                     self.open_positions[(category, symbol)] = [data]
@@ -209,7 +215,7 @@ class ByBitWebSocketPrivateStream:
 
     # Handler Function : Order
     def handle_orders(self, message):
-        logging.info(f"handle_orders: {message}")
+        logging.warning(f"order: {message['topic']} -- {message['creationTime']} -- {message['id']}")
 
         for data in message['data']:
             with self.order_lock:
@@ -223,7 +229,7 @@ class ByBitWebSocketPrivateStream:
 
     # Handler Function : Wallet
     def handle_wallet(self, message):
-        logging.info(f"handle_wallet: {message}")
+        logging.warning(f"wallet: {message['topic']} -- {message['creationTime']} -- {message['id']}")
 
         for data in message['data']:
             with self.wallet_lock:
@@ -305,6 +311,8 @@ class ByBitRestConsumer:
         pass
 
     def set_leverage(self, category, symbol, buy_leverage, sell_leverage):
+        logging.warning(f"set_leverage: {category} -- {symbol} -- {buy_leverage} -- {sell_leverage}")
+
         session = HTTP(testnet=self.testnet, api_key=self.api_key, api_secret=self.api_secret)
         try:
             leverage_response = session.set_leverage(
@@ -314,11 +322,11 @@ class ByBitRestConsumer:
                 sell_leverage=sell_leverage
             )
             if leverage_response['retCode'] == 110043:
-                logging.info(f"Leverage already set for account {account['api_key']}.")
+                logging.warning(f"Leverage already set for account {self.api_key}.")
             else:
-                logging.info(f"Leverage set response for account {account['api_key']}: {leverage_response}")
+                logging.warning(f"Leverage set response for account {self.api_key}: {leverage_response}")
         except Exception as e:
-            logging.info(f"Error setting leverage for account {account['api_key']}: {e}")
+            logging.warning(f"Error setting leverage for account {self.api_key}: {e}")
 
         pass
 
@@ -341,7 +349,7 @@ class BybitWebSocket(ByBitWebsocketTradingOrder, ByBitWebSocketPublicStream, ByB
 
     # main running thread
     def run(self):
-        logging.info(f"Run() : Started..........")
+        logging.warning(f"Run() : Started..........")
 
         self.register_private_stream()
         self.register_public_stream(self.symbols)
@@ -350,7 +358,7 @@ class BybitWebSocket(ByBitWebsocketTradingOrder, ByBitWebSocketPublicStream, ByB
         while self.running == True:
             time.sleep(1)
 
-        logging.info("Run() : Stopped............")
+        logging.warning("Run() : Stopped............")
 
     def start(self):
         self.ws_thread = threading.Thread(target=self.run)

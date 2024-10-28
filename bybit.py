@@ -11,7 +11,7 @@ from datatypes import serialize_order_book_response
 
 # Get the cacert.pem path and set SSL_CERT_FILE dynamically for websocket communication
 os.environ['SSL_CERT_FILE'] = certifi.where()
-logging.warning(certifi.where())
+# logging.warning(certifi.where())
 
 # Setup logging
 logging.basicConfig(
@@ -101,7 +101,7 @@ class ByBitWebsocketTradingOrder:
         pass
 
     # Trading : Create order
-    def place_order(self, category, symbol, side, orderType, price, qty, timeInForce="PostOnly", reduceOnly = False):
+    def place_order(self, category, symbol, side, orderType, price, qty, timeInForce="PostOnly", reduceOnly = False, closeOnTrigger = False):
         self.trading.place_order(
             self.handle_place_order_message,
             category=category,
@@ -111,7 +111,8 @@ class ByBitWebsocketTradingOrder:
             price=price,
             qty=qty,
             timeInForce=timeInForce,
-            reduceOnly=reduceOnly
+            reduceOnly=reduceOnly,
+            closeOnTrigger=closeOnTrigger
         )
         self.place_order_event.wait()
         order_id = self._order_id

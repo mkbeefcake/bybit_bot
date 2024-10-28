@@ -27,7 +27,7 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
-logging.warning(f"Start!")
+logging.info(f"Start!")
 
 def get_current(step=15, howMany=1):
     symbol = "BTC/USDT:USDT"
@@ -397,7 +397,8 @@ def place_close_by_order(account,prediction,side,qty):
             price=prediction,  # Target close price
             qty=str(round(float(qty), 3)),  # Same quantity as the initial trade
             timeInForce="PostOnly",  # replace "GTC" to "PostOnly"
-            reduceOnly=False # True to False
+            reduceOnly=False # True to False,
+            closeOnTrigger=True
         )
         logging.info(f"Close By order placed at {account['closeby_price']} with response {close_order_response}")
         x=True
@@ -915,12 +916,13 @@ def main(leverage, howMany, n_minutes, spread, config_path):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Cryptopredictor.ai Trading bot parameters")
-    parser.add_argument('--leverage', type=validate_positive_int, required=True, help='Leverage to be used.')
-    parser.add_argument('--howMany', type=validate_positive_int, required=True, help='Number of accounts to check simultaneously.')
-    parser.add_argument('--n_minutes', type=validate_positive_int, required=True, help='Time interval in minutes to check predictions.')
-    parser.add_argument('--spread', type=validate_positive_float, required=True, help='Minimum spread required to enter a trade.')
-    parser.add_argument('--config_path', type=str, required=True, help='Path to the config.json file.')
+    pass
+    # parser = argparse.ArgumentParser(description="Cryptopredictor.ai Trading bot parameters")
+    # parser.add_argument('--leverage', type=validate_positive_int, required=True, help='Leverage to be used.')
+    # parser.add_argument('--howMany', type=validate_positive_int, required=True, help='Number of accounts to check simultaneously.')
+    # parser.add_argument('--n_minutes', type=validate_positive_int, required=True, help='Time interval in minutes to check predictions.')
+    # parser.add_argument('--spread', type=validate_positive_float, required=True, help='Minimum spread required to enter a trade.')
+    # parser.add_argument('--config_path', type=str, required=True, help='Path to the config.json file.')
 
-    args = parser.parse_args()
-    main(args.leverage, args.howMany, args.n_minutes, args.spread, args.config_path)
+    # args = parser.parse_args()
+    # main(args.leverage, args.howMany, args.n_minutes, args.spread, args.config_path)

@@ -397,7 +397,7 @@ def place_close_by_order(account,prediction,side,qty):
             price=prediction,  # Target close price
             qty=str(round(float(qty), 3)),  # Same quantity as the initial trade
             timeInForce="PostOnly",  # replace "GTC" to "PostOnly"
-            reduceOnly=False # True to False,
+            reduceOnly=False, # True to False,
             closeOnTrigger=True
         )
         logging.info(f"Close By order placed at {account['closeby_price']} with response {close_order_response}")

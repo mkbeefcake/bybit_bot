@@ -2,7 +2,6 @@ import datetime
 from datetime import timezone
 import time
 import json
-import requests
 import threading
 from pybit.exceptions import InvalidRequestError
 import math
@@ -12,13 +11,13 @@ import os
 import requests
 import pandas as pd
 import ccxt
-from bybit import BybitWebSocketWrapper, BybitWebSocket
+from bybit import BybitWebSocketWrapper, BybitWebSocket, set_kline_interval, ByBitWebSocketPublicStream
+
 
 m_valid_qty=0
 m_side = "DEFAULT"
 m_testnet = True
-
-print(os.getcwd())
+m_leverage = 10
 
 # Setup logging
 logging.basicConfig(
@@ -29,20 +28,30 @@ logging.basicConfig(
 
 logging.info(f"Start!")
 
+
+def get_utc_current_time():
+    timestamp = datetime.datetime.now()
+    timestamp = timestamp.astimezone(timezone.utc)    
+    return timestamp
+
 def get_current(step=15, howMany=1):
-    symbol = "BTC/USDT:USDT"
-    exchange = ccxt.bybit({
-        'enableRateLimit': True
-    })
-    exchange.options['defaultType'] = 'future'
-    markets = exchange.load_markets()
+    # original code
 
-    if symbol not in markets:
-        raise ValueError(f"{symbol} is not a valid market on ByBit spot.")
+    # symbol = "BTC/USDT:USDT"
+    # exchange = ccxt.bybit({
+    #     'enableRateLimit': True
+    # })
+    # exchange.options['defaultType'] = 'future'
+    # markets = exchange.load_markets()
 
-    timeframe = str(step) + "m"
+    # if symbol not in markets:
+    #     raise ValueError(f"{symbol} is not a valid market on ByBit spot.")
 
-    ohlcv = exchange.fetch_ohlcv(symbol, timeframe, limit=howMany)
+    # timeframe = str(step) + "m"
+    # ohlcv = exchange.fetch_ohlcv(symbol, timeframe, limit=howMany)
+    
+    # Removed the websocket code
+    ohlcv = ByBitWebSocketPublicStream.get_last_klines("BTCUSDT", nth=howMany)
 
     columns = ['timestamp', 'open', 'high', 'low', 'close', 'volume']
     data = pd.DataFrame(ohlcv, columns=columns)
@@ -196,7 +205,7 @@ def sync_account(api_key, api_secret, has_open_trades, has_open_orders, order_id
 
     # Ensure timestamp is set to current time if not provided
     if timestamp is None:
-        timestamp = datetime.datetime.now()
+        timestamp = get_utc_current_time()
     elif isinstance(timestamp, str):
         # If the timestamp is a string, convert it to a datetime object
         timestamp = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
@@ -228,8 +237,7 @@ def sync_account(api_key, api_secret, has_open_trades, has_open_orders, order_id
 def sync_account_prediction(api_key, prediction_price, prediction_time, source):
     url = "https://cryptopredictor.ai/bot_insert_prediction.php"
     
-    timestamp = datetime.datetime.now()
-    timestamp = timestamp.astimezone(timezone.utc)
+    timestamp = get_utc_current_time()
     data = {
         'api_key': api_key,
         'timestamp': timestamp.strftime('%Y-%m-%d %H:%M:%S'),
@@ -277,7 +285,10 @@ def get_max_quantity(account, symbol="BTCUSDT", entry_limit=2000):
     
     # Fetch leverage for the symbol
     leverage_info = session.get_positions(category="linear", symbol=symbol)
-    leverage = float(leverage_info[0]['leverage'])
+    try:
+        leverage = float(leverage_info[0]['leverage'])
+    except Exception as e:
+        leverage = m_leverage
 
     # Calculate the maximum position size considering leverage
     max_position_value = available_balance * leverage
@@ -397,10 +408,10 @@ def place_close_by_order(account,prediction,side,qty):
             price=prediction,  # Target close price
             qty=str(round(float(qty), 3)),  # Same quantity as the initial trade
             timeInForce="PostOnly",  # replace "GTC" to "PostOnly"
-            reduceOnly=False, # True to False,
+            reduceOnly=False, # True to False
             closeOnTrigger=True
         )
-        logging.info(f"Close By order placed at {account['closeby_price']} with response {close_order_response}")
+        logging.info(f"Close By order placed at {prediction} or {qty} with response {close_order_response}")
         x=True
     except InvalidRequestError as e:
         x=False
@@ -436,11 +447,10 @@ def monitorTrades(account_manager):
         logging.info(f"API key: {api_key} - Has OrderIDs: {account['order_id']}")
 
         logging.info(f"API key: {api_key} - Has TradeIDs: {account['trade_id']}")
-        account['timestamp'] = datetime.datetime.now()
+        account['timestamp'] = get_utc_current_time()
 
 def getEntryLimit(account, symbol="BTCUSDT"):
-    session : BybitWebSocket = BybitWebSocketWrapper.get_session(testnet=m_testnet, api_key=account['api_key'], api_secret=account['api_secret'], symbols=[symbol])
-    ticker_data = session.get_last_ticker(category="linear", symbol=symbol)
+    ticker_data = ByBitWebSocketPublicStream.get_last_ticker(category="linear", symbol=symbol)
     last_price = float(ticker_data['lastPrice'])
     return last_price
 
@@ -466,8 +476,7 @@ def GetPredictions(step, account, currency="BTC", exchange="BYBIT", type="FUTURE
                 prediction_data = response.json()
                 prediction_time_str = prediction_data.get('Time')
                 prediction_price = float(prediction_data.get('Price', "CallAgain"))
-                now = datetime.datetime.now()
-                now = now.astimezone(timezone.utc)
+                now = get_utc_current_time()
 
                 prediction_time = datetime.datetime.strptime(prediction_time_str, '%H:%M:%S').time()
                 current_time = now.replace(second=0, microsecond=0).time()
@@ -528,8 +537,8 @@ class AccountManager:
             account.setdefault('has_open_orders', 0)
             account.setdefault('order_id', '')
             account.setdefault('trade_id', '')
-            account.setdefault('timestamp', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-            account.setdefault('updated_at', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+            account.setdefault('timestamp', get_utc_current_time().strftime('%Y-%m-%d %H:%M:%S'))
+            account.setdefault('updated_at', get_utc_current_time().strftime('%Y-%m-%d %H:%M:%S'))
             account.setdefault('closeby_order', 'False')
             account.setdefault('qty', '0')
             account.setdefault('side', 'None')
@@ -547,8 +556,8 @@ class AccountManager:
                     'has_open_orders': has_open_orders(account),
                     'order_id' : '',
                     'trade_id': '',
-                    'timestamp': datetime.datetime.now(),
-                    'updated_at': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    'timestamp': get_utc_current_time(),
+                    'updated_at': get_utc_current_time().strftime('%Y-%m-%d %H:%M:%S'),
                     'closeby_order':'False',
                     'qty':'0',
                     'side':'None'
@@ -563,7 +572,7 @@ class AccountManager:
                     has_open_orders=has_open_orders(account),
                     order_id=account['order_id'],
                     trade_id=account['trade_id'],
-                    timestamp=datetime.datetime.now(),
+                    timestamp=get_utc_current_time(),
                     source="load_accounts",
                     closeby_order=account['closeby_order'],
                     qty=account['qty'],
@@ -700,7 +709,7 @@ class TradeExecutor:
                         has_open_orders=has_open_orders(account),
                         order_id=order_id,
                         trade_id=ret_account['trade_id'],   ##maybe another method
-                        timestamp=datetime.datetime.now(),
+                        timestamp=get_utc_current_time(),
                         source="execute_trade_logic",
                         closeby_order='False',
                         qty=str(round(valid_qty, 3)),
@@ -750,18 +759,15 @@ def calculate_time_difference(timestamp_db):
     """
 
     # Convert the database timestamp string to a datetime object
-    time_db = datetime.datetime.strptime(timestamp_db, '%Y-%m-%d %H:%M:%S')
+    time_db = datetime.datetime.strptime(timestamp_db, '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc)
 
     # Get the current time
-    time_now = datetime.datetime.now()
+    time_now = get_utc_current_time()
 
     # Calculate the difference in minutes
     time_difference = (time_now - time_db).total_seconds()
 
     return time_difference
-
-def bybit_websocket_thread(account_manager):
-    pass
 
 def monitor_and_manage_trades(account_manager):
     while True:
@@ -771,7 +777,7 @@ def monitor_and_manage_trades(account_manager):
             for account in account_manager.accounts:
                 if 'updated_at' not in account:
                     logging.warning(f"'updated_at' missing for account {account['api_key']}. Initializing it.")
-                    account['updated_at'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    account['updated_at'] = get_utc_current_time().strftime('%Y-%m-%d %H:%M:%S')
 
                 api_key = account['api_key']
                 account_status = get_account_status(api_key)
@@ -803,7 +809,7 @@ def monitor_and_manage_trades(account_manager):
                                 has_open_orders(account),
                                 order_id=account['order_id'],
                                 trade_id=account['trade_id'],
-                                timestamp=datetime.datetime.now(),
+                                timestamp=get_utc_current_time(),
                                 source="monitor_and_manage_trades",
                                 closeby_order="True",
                                 qty=qty,
@@ -821,7 +827,7 @@ def monitor_and_manage_trades(account_manager):
 
                     if has_open_trades == 0 and has_open_orders == 1 and account_status['closeby_order'] == "False" and x>61:
                         logging.info(f"INTRA222 and time_diff is {x}")
-                        time_diff = (datetime.datetime.now() - updated_at)
+                        time_diff = (get_utc_current_time() - updated_at.replace(tzinfo=timezone.utc))
                         
                         time_diff_seconds = time_diff.total_seconds()
                         logging.info(f"cancel order .. updates_at is {updated_at} and time_diff={time_diff} and time_diff_seconds={time_diff_seconds}")
@@ -837,7 +843,7 @@ def monitor_and_manage_trades(account_manager):
                                     has_open_orders=has_open_orders(account),
                                     order_id='',
                                     trade_id='',
-                                    timestamp=datetime.datetime.now(),
+                                    timestamp=get_utc_current_time(),
                                     source="monitor_and_manage_trades",
                                     closeby_order='False',
                                     qty=0,
@@ -865,6 +871,10 @@ def monitor_and_manage_trades(account_manager):
 
 
 def main(leverage, howMany, n_minutes, spread, config_path):
+    # update kline interval for Bybit
+    set_kline_interval(n_minutes)
+    m_leverage = leverage
+
     account_manager = AccountManager(config_path)
 
     # Start monitor_and_manage_trades in a separate thread
@@ -875,9 +885,6 @@ def main(leverage, howMany, n_minutes, spread, config_path):
 
     updates_sync_thread = threading.Thread(target=updates_sync, daemon=True)
     updates_sync_thread.start()
-
-    websocket_thread = threading.Thread(target=bybit_websocket_thread, args=(account_manager,), daemon=True)
-    websocket_thread.start()
 
     def process_trades():
         for _ in range(howMany):
@@ -898,7 +905,7 @@ def main(leverage, howMany, n_minutes, spread, config_path):
 
     while True:
         logging.info(f"Beginning of main loop with howMany={howMany}")
-        now = datetime.datetime.now()
+        now = get_utc_current_time()
         current_minute = now.minute
         current_second = now.second                            
 
@@ -916,13 +923,12 @@ def main(leverage, howMany, n_minutes, spread, config_path):
 
 
 if __name__ == "__main__":
-    pass
-    # parser = argparse.ArgumentParser(description="Cryptopredictor.ai Trading bot parameters")
-    # parser.add_argument('--leverage', type=validate_positive_int, required=True, help='Leverage to be used.')
-    # parser.add_argument('--howMany', type=validate_positive_int, required=True, help='Number of accounts to check simultaneously.')
-    # parser.add_argument('--n_minutes', type=validate_positive_int, required=True, help='Time interval in minutes to check predictions.')
-    # parser.add_argument('--spread', type=validate_positive_float, required=True, help='Minimum spread required to enter a trade.')
-    # parser.add_argument('--config_path', type=str, required=True, help='Path to the config.json file.')
+    parser = argparse.ArgumentParser(description="Cryptopredictor.ai Trading bot parameters")
+    parser.add_argument('--leverage', type=validate_positive_int, required=True, help='Leverage to be used.')
+    parser.add_argument('--howMany', type=validate_positive_int, required=True, help='Number of accounts to check simultaneously.')
+    parser.add_argument('--n_minutes', type=validate_positive_int, required=True, help='Time interval in minutes to check predictions.')
+    parser.add_argument('--spread', type=validate_positive_float, required=True, help='Minimum spread required to enter a trade.')
+    parser.add_argument('--config_path', type=str, required=True, help='Path to the config.json file.')
 
-    # args = parser.parse_args()
-    # main(args.leverage, args.howMany, args.n_minutes, args.spread, args.config_path)
+    args = parser.parse_args()
+    main(args.leverage, args.howMany, args.n_minutes, args.spread, args.config_path)

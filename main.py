@@ -12,12 +12,12 @@ import requests
 import pandas as pd
 import ccxt
 from exchange.bybit import BybitWebSocket
-from exchange.exchange import ExchangeWrapper, set_kline_interval
+from exchange.exchange import ExchangeWrapper, set_kline_interval, ExchangeType
 
 m_valid_qty=0
 m_side = "DEFAULT"
-m_testnet = True
-m_leverage = 10
+m_testnet = True                                        # Set testnet or real net as global variable
+m_leverage = 10                                         # Set current leverage as global variable
 
 # Setup logging
 logging.basicConfig(
@@ -870,9 +870,14 @@ def monitor_and_manage_trades(account_manager):
             logging.error(f"Error in monitor_and_manage_trades: {e}")
 
 
-def main(leverage, howMany, n_minutes, spread, config_path):
+def main(exchange, leverage, howMany, n_minutes, spread, config_path):
     # update kline interval for Bybit
     set_kline_interval(n_minutes)
+    try:
+        ExchangeWrapper.set_exchange_type(ExchangeType[exchange.upper()])
+    except Exception as e:
+        ExchangeWrapper.set_exchange_type(ExchangeType.BYBIT)
+
     m_leverage = leverage
 
     account_manager = AccountManager(config_path)
@@ -924,6 +929,7 @@ def main(leverage, howMany, n_minutes, spread, config_path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Cryptopredictor.ai Trading bot parameters")
+    parser.add_argument('--exchange', type=str, required=False, help='Indicates Exchange; BYBIT or MEXC')
     parser.add_argument('--leverage', type=validate_positive_int, required=True, help='Leverage to be used.')
     parser.add_argument('--howMany', type=validate_positive_int, required=True, help='Number of accounts to check simultaneously.')
     parser.add_argument('--n_minutes', type=validate_positive_int, required=True, help='Time interval in minutes to check predictions.')
@@ -931,4 +937,4 @@ if __name__ == "__main__":
     parser.add_argument('--config_path', type=str, required=True, help='Path to the config.json file.')
 
     args = parser.parse_args()
-    main(args.leverage, args.howMany, args.n_minutes, args.spread, args.config_path)
+    main(args.exchange, args.leverage, args.howMany, args.n_minutes, args.spread, args.config_path)

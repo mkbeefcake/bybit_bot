@@ -10,8 +10,9 @@ import os
 import requests
 import pandas as pd
 import asyncio
-from exchange import ExchangeFactory, ExchangeType, ExchangeWebSocket, ExchangePublicStream
-
+from trading import ExchangeFactory, ExchangeType, ExchangeWebSocket, ExchangePublicStream
+import sys
+import ccxt.pro as ccxtpro
 
 m_valid_qty = 0
 m_side = "DEFAULT"
@@ -25,6 +26,10 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logging.info(f"----------------- Start! --------------------")
+
+if sys.platform == 'win32':
+	asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
 
 ####################################################
 # Argument Validator Functions
@@ -588,8 +593,8 @@ class AccountManager:
                 sync_account(
                     api_key=account['api_key'],
                     api_secret=account['api_secret'],
-                    has_open_trades=has_open_trades(account),
-                    has_open_orders=has_open_orders(account),
+                    has_open_trades=await has_open_trades(account),
+                    has_open_orders=await has_open_orders(account),
                     order_id=account['order_id'],
                     trade_id=account['trade_id'],
                     timestamp=get_utc_current_time(),
@@ -604,8 +609,8 @@ class AccountManager:
             elif r_account != 'NOREC' :
                 logging.info(f"3. IN !NOT NOREC")
                 
-                account['has_open_trades'] = has_open_trades(account)
-                account['has_open_orders'] = has_open_orders(account)
+                account['has_open_trades'] = await has_open_trades(account)
+                account['has_open_orders'] = await has_open_orders(account)
                 account['order_id'] = r_account['order_id']
                 account['trade_id'] = r_account['trade_id']
                 account['timestamp'] = r_account['timestamp']
@@ -728,8 +733,8 @@ class TradeExecutor:
                     sync_account(
                         api_key=account['api_key'],
                         api_secret=account['api_secret'],
-                        has_open_trades=has_open_trades(account),
-                        has_open_orders=has_open_orders(account),
+                        has_open_trades = await has_open_trades(account),
+                        has_open_orders = await has_open_orders(account),
                         order_id=order_id,
                         trade_id=ret_account['trade_id'],   ##maybe another method
                         timestamp=get_utc_current_time(),
@@ -741,8 +746,8 @@ class TradeExecutor:
                     f_ret_account = get_account_status(account['api_key'])
 
                     account['order_id'] = f_ret_account['order_id']
-                    account['has_open_orders'] = has_open_orders(account)
-                    account['has_open_trades'] = has_open_trades(account)
+                    account['has_open_orders'] = await has_open_orders(account)
+                    account['has_open_trades'] = await has_open_trades(account)
                     account['timestamp'] = f_ret_account['timestamp']
                     account['closeby_order']=f_ret_account['closeby_order']
                     account['side'] = f_ret_account['side']
@@ -806,8 +811,8 @@ async def monitor_and_manage_trades(account_manager):
                             sync_account(
                                 account['api_key'],
                                 account['api_secret'],
-                                has_open_trades(account),
-                                has_open_orders(account),
+                                await has_open_trades(account),
+                                await has_open_orders(account),
                                 order_id=account['order_id'],
                                 trade_id=account['trade_id'],
                                 timestamp=get_utc_current_time(),
@@ -842,8 +847,8 @@ async def monitor_and_manage_trades(account_manager):
                                 sync_account(
                                     api_key=account['api_key'],
                                     api_secret=account['api_secret'],
-                                    has_open_trades=has_open_trades(account),
-                                    has_open_orders=has_open_orders(account),
+                                    has_open_trades=await has_open_trades(account),
+                                    has_open_orders=await has_open_orders(account),
                                     order_id='',
                                     trade_id='',
                                     timestamp=get_utc_current_time(),
@@ -886,11 +891,8 @@ async def main(exchange, leverage, howMany, n_minutes, spread, config_path):
     trade_executor = TradeExecutor()
     await trade_executor.initialize(account_manager, leverage)
     
-    monitoring_thread = threading.Thread(target=monitor_and_manage_trades, args=(account_manager,), daemon=True)
-    monitoring_thread.start()
-
-    updates_sync_thread = threading.Thread(target=updates_sync, daemon=True)
-    updates_sync_thread.start()
+    asyncio.run(monitor_and_manage_trades(account_manager))
+    asyncio.run(updates_sync())
 
     async def process_trades():
         for _ in range(howMany):
@@ -926,7 +928,6 @@ async def main(exchange, leverage, howMany, n_minutes, spread, config_path):
 
         # Final monitoring pass to ensure all trades are managed
         #monitorTrades(account_manager)
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Cryptopredictor.ai Trading bot parameters")

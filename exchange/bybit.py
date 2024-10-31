@@ -1,6 +1,6 @@
 import logging
 import threading
-from fixed_size_queue import FixedSizeQueue
+from utility.fixed_size_queue import FixedSizeQueue
 from pybit.unified_trading import WebSocketTrading, WebSocket
 from pybit.unified_trading import HTTP
 import time
@@ -8,45 +8,12 @@ import os
 import certifi
 import json
 import ccxt
-# from datatypes import serialize_order_book_response
-
-# Get the cacert.pem path and set SSL_CERT_FILE dynamically for websocket communication
-os.environ['SSL_CERT_FILE'] = certifi.where()
 
 BYBIT_ORDER_LEVEL_1 = 1
 BYBIT_ORDER_LEVEL_50 = 50
 BYBIT_ORDER_LEVEL_200 = 200
 BYBIT_ORDER_LEVEL_500 = 500
 MAX_SIZE = 20
-
-def set_kline_interval(interval: int):
-    ByBitWebSocketPublicStream.KLINE_INTERVAL = interval
-    pass
-
-class BybitWebSocketWrapper:
-    all_sockets = {}
-    lock = threading.Lock()
-
-    @classmethod
-    def get_session(cls, api_key, api_secret, symbols=[], testnet=False) -> 'BybitWebSocket':
-        if not api_key:
-            raise ValueError("API Key must be provided")
-
-        with cls.lock:
-            if api_key in cls.all_sockets:
-                websocket: BybitWebSocket = cls.all_sockets[api_key]
-                if symbols != []:
-                    ByBitWebSocketPublicStream.set_symbols(list(set(ByBitWebSocketPublicStream.get_symbols() + symbols)))
-                return websocket
-            else:
-                cls.all_sockets[api_key] = BybitWebSocket(
-                    api_key=api_key,
-                    api_secret=api_secret,
-                    symbols=symbols,
-                    testnet=testnet
-                )
-                cls.all_sockets[api_key].start()
-                return cls.all_sockets[api_key]
 
 
 class ByBitWebsocketTradingOrder:

@@ -1,7 +1,7 @@
 import threading
 import os
 import certifi
-from bybit import ByBitWebSocketPublicStream, BybitWebSocket
+from exchange.bybit import ByBitWebSocketPublicStream, BybitWebSocket
 
 # Get the cacert.pem path and set SSL_CERT_FILE dynamically for websocket communication
 os.environ['SSL_CERT_FILE'] = certifi.where()

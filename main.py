@@ -125,8 +125,8 @@ def updates_sync():
                 continue
 
             # FOR DEBUG ONLY MY TEST ACCOUNT
-            if api_key != "gExsrmBfeG8mHub03S":
-                continue
+            # if api_key != "gExsrmBfeG8mHub03S":
+            #     continue
 
             # Assuming you have the following methods already implemented:
             has_o_t = int(has_open_trades(account) == 'True')  # Convert "True"/"False" to 1/0
@@ -208,7 +208,7 @@ def sync_account(api_key, api_secret, has_open_trades, has_open_orders, order_id
         timestamp = get_utc_current_time()
     elif isinstance(timestamp, str):
         # If the timestamp is a string, convert it to a datetime object
-        timestamp = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
+        timestamp = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc)
 
     data = {
         'api_key': api_key,

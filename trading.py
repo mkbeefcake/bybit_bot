@@ -59,11 +59,12 @@ class ExchangeFactory:
                 return cls.all_sockets[api_key]
 
     @classmethod
-    def get_public_session(cls, testnet: bool = False) -> 'ExchangePublicStream':
+    def get_public_session(cls, symbols = [], testnet: bool = False) -> 'ExchangePublicStream':
         with cls.lock:
             if cls.public_socket == None:
                 cls.public_socket = ExchangePublicStream(
                     exchange_type=cls.exchange,
+                    symbols=symbols,
                     interval=cls.interval,
                     testnet=testnet)
                 
@@ -71,9 +72,13 @@ class ExchangeFactory:
 
 
 class ExchangePublicStream:
-    
-    def __init__(self, exchange_type, interval, testnet=False):
+    LIMITED_ITEMS = 4
+
+    def __init__(self, exchange_type, interval, symbols, testnet=False):
         self.interval = interval
+        self.running = True
+        self.symbols = symbols
+        self.lock = asyncio.Lock()
 
         if exchange_type == ExchangeType.MEXC:
             self.exchange = ccxtpro.mexc({
@@ -86,6 +91,25 @@ class ExchangePublicStream:
         
         if testnet == True:
             self.exchange.set_sandbox_mode(True)
+
+        _ = asyncio.create_task(self.run())
+        pass
+
+    async def run(self):
+        while self.running:
+            for symbol in self.symbols:
+                candles = await self.exchange.watch_ohlcv(symbol, timeframe=f"{self.interval}m", limit=ExchangePublicStream.LIMITED_ITEMS)
+                print(self.exchange.iso8601(self.exchange.milliseconds()), candles)
+
+                ticker = await self.exchange.watch_ticker(symbol)
+                print(self.exchange.iso8601(self.exchange.milliseconds()), ticker)
+
+            await asyncio.sleep(1)
+
+    async def stop(self):
+        self.running = False
+        async with self.lock:
+            await self.exchange.close()
 
     async def get_last_klines(self, symbol, nth, steps=-1):
         if steps == -1:
@@ -100,7 +124,7 @@ class ExchangePublicStream:
 class ExchangeWebSocket:
     def __init__(self, exchange_type, api_key, api_secret, interval, symbols=[], testnet=False):        
         self.running = True
-        self.lock = threading.Lock()
+        self.lock = asyncio.Lock()
         self.symbols = symbols
         self.testnet = testnet
         self.interval = interval
@@ -119,8 +143,7 @@ class ExchangeWebSocket:
             })
 
         if testnet == True:
-            with self.lock:
-                self.exchange.set_sandbox_mode(True)
+            self.exchange.set_sandbox_mode(True)
 
         _ = asyncio.create_task(self.run())
         pass
@@ -138,13 +161,13 @@ class ExchangeWebSocket:
 
     async def stop(self):
         self.running = False
-        with self.lock:
+        async with self.lock:
             await self.exchange.close()
 
     async def set_leverage(self, symbol, buy_leverage, sell_leverage):
         logging.info(f"set_leverage: {symbol} -- {buy_leverage} -- {sell_leverage}")
-        with self.lock:
-            try:                
+        async with self.lock:
+            try:
                 await asyncio.sleep(10)
                 return await self.exchange.set_leverage(leverage=buy_leverage, symbol=symbol)
             except Exception as e:
@@ -152,26 +175,28 @@ class ExchangeWebSocket:
         
 
     async def get_open_orders(self, symbol):
-        with self.lock:
+        async with self.lock:
             try:
-                return await self.exchange.watch_orders(symbol=symbol)
+                await asyncio.sleep(10)
+                # return await self.exchange.watch_orders(symbol=symbol)
             except Exception as e:
                 logging.info(f"Error: get_open_orders() : {e}")
 
 
     async def get_positions(self, symbol):
-        with self.lock:
+        async with self.lock:
             try:
                 await asyncio.sleep(10)
-                return await self.exchange.watch_positions(symbols=[symbol])
+                # return await self.exchange.watch_positions(symbols=[symbol])
             except Exception as e:
                 logging.info(f"Error: get_positions() : {e}")
 
     
     async def get_wallet_balance(self, account_type, coin):
-        with self.lock:
+        async with self.lock:
             try:
-                return await self.exchange.watch_balance()
+                await asyncio.sleep(10)
+                # return await self.exchange.watch_balance()
             except Exception as e:
                 logging.info(f"Error: watch_balance() : {e}")
             
@@ -193,7 +218,7 @@ class ExchangeWebSocket:
         if orderType.lower() == 'limit':
             order_params['price'] = price # add price for limit orders
 
-        with self.lock:
+        async with self.lock:
             try:
                 return await self.exchange.create_order_ws(**order_params, params=params)
             except Exception as e:
@@ -201,7 +226,7 @@ class ExchangeWebSocket:
             
     
     async def cancel_order(self, symbol, orderId):
-        with self.lock:
+        async with self.lock:
             try:    
                 return await self.exchange.cancel_order_ws(id=orderId, symbol=symbol)
             except Exception as e:

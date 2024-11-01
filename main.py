@@ -880,6 +880,7 @@ async def main(exchange, leverage, howMany, n_minutes, spread, config_path):
         m_leverage = leverage
         ExchangeFactory.set_kline_interval(n_minutes)
         ExchangeFactory.set_exchange_type(ExchangeType[exchange.upper()])
+        ExchangeFactory.get_public_session(["BTC/USDT:USDT"], testnet=m_testnet)
     except Exception as e:
         ExchangeFactory.set_exchange_type(ExchangeType.BYBIT)
 
@@ -891,8 +892,8 @@ async def main(exchange, leverage, howMany, n_minutes, spread, config_path):
     trade_executor = TradeExecutor()
     await trade_executor.initialize(account_manager, leverage)
     
-    asyncio.run(monitor_and_manage_trades(account_manager))
-    asyncio.run(updates_sync())
+    _ = asyncio.create_task(monitor_and_manage_trades(account_manager))
+    _ = asyncio.create_task(updates_sync())
 
     async def process_trades():
         for _ in range(howMany):

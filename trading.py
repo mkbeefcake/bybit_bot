@@ -5,13 +5,15 @@ import certifi
 import threading
 import time
 import ccxt.pro as ccxtpro
+import asyncio
 from enum import Enum
+
 
 # Get the cacert.pem path and set SSL_CERT_FILE dynamically for websocket communication
 os.environ['SSL_CERT_FILE'] = certifi.where()
 
 print('CCXT version', ccxtpro.__version__)
-print('Supported Exchanges: ', ccxtpro.exchanges)
+# print('Supported Exchanges: ', ccxtpro.exchanges)
 
 class ExchangeType(Enum):
     BYBIT = 1
@@ -119,7 +121,20 @@ class ExchangeWebSocket:
         if testnet == True:
             with self.lock:
                 self.exchange.set_sandbox_mode(True)
+
+        _ = asyncio.create_task(self.run())
         pass
+
+    async def run(self):
+        while self.running:
+            for symbol in self.symbols:
+                orderbook = await self.exchange.watch_order_book(symbol)
+                print(orderbook['asks'][0], orderbook['bids'][0])
+
+                trades = await self.exchange.watch_trades(symbol)
+                print(self.exchange.iso8601(self.exchange.milliseconds()), trades)    
+
+            await asyncio.sleep(1)
 
     async def stop(self):
         self.running = False
@@ -130,6 +145,7 @@ class ExchangeWebSocket:
         logging.info(f"set_leverage: {symbol} -- {buy_leverage} -- {sell_leverage}")
         with self.lock:
             try:                
+                await asyncio.sleep(10)
                 return await self.exchange.set_leverage(leverage=buy_leverage, symbol=symbol)
             except Exception as e:
                 logging.info(f"Error: set_leverage() : {e}")
@@ -146,6 +162,7 @@ class ExchangeWebSocket:
     async def get_positions(self, symbol):
         with self.lock:
             try:
+                await asyncio.sleep(10)
                 return await self.exchange.watch_positions(symbols=[symbol])
             except Exception as e:
                 logging.info(f"Error: get_positions() : {e}")
@@ -192,13 +209,3 @@ class ExchangeWebSocket:
             
     
 
-async def main1():
-    exchange = ccxtpro.bybit({'newUpdates': False})
-    while True:
-        orderbook = await exchange.watch_order_book('BTC/USDT')
-        print(orderbook['asks'][0], orderbook['bids'][0])
-
-        trades = await exchange.watch_trades('BTC/USDT:USDT')
-        print(exchange.iso8601(exchange.milliseconds()), trades)
-
-    await exchange.close()

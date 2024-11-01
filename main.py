@@ -306,7 +306,7 @@ async def updates_sync():
             update_account(api_key, has_o_t, has_o_o)
 
         # Sleep for 2 seconds before the next iteration
-        time.sleep(3)
+        await asyncio.sleep(3)
 
 async def fetch_qty(account, symbols=["BTC/USDT:USDT"]):
     session : ExchangeWebSocket = ExchangeFactory.get_session(testnet=m_testnet, api_key=account['api_key'], api_secret=account['api_secret'], symbols=symbols)
@@ -726,7 +726,7 @@ class TradeExecutor:
                     print(f"Linear/BTCUSDT : {side}, {entry_limit}, {round(valid_qty, 3)}")
                     logging.info(f"Order placed at {entry_limit} with response {order_id}")                    
                     
-                    time.sleep(2)
+                    await asyncio.sleep(2)
                     ret_account = get_account_status(account['api_key'])        
 
                     # Sync the account immediately after placing the order
@@ -804,7 +804,7 @@ async def monitor_and_manage_trades(account_manager):
                         logging.info(f"INTRA and time diff is {x}")
 
                         if await place_close_by_order(account, account_status['Prediction'], account_status['side'], qty) is True:
-                            time.sleep(3)
+                            await asyncio.sleep(3)
                             logging.info("enters place_close_by_order")
                             #account['closeby_order'] = "True"
                             
@@ -842,7 +842,7 @@ async def monitor_and_manage_trades(account_manager):
                             
                             if await cancel_pending_order(account,account_status['order_id']) is True:
                                 logging.info("cancel_pending_order")
-                                time.sleep(3)
+                                await asyncio.sleep(3)
 
                                 sync_account(
                                     api_key=account['api_key'],
@@ -868,7 +868,7 @@ async def monitor_and_manage_trades(account_manager):
                                 account['qty'] = f2_ret_account['qty']
                                 account['side'] = f2_ret_account['side']
                             
-            time.sleep(5)
+            await asyncio.sleep(5)
         except Exception as e:
             logging.error(f"Error in monitor_and_manage_trades: {e}")
 
@@ -906,7 +906,7 @@ async def main(exchange, leverage, howMany, n_minutes, spread, config_path):
             trade_opened = await trade_executor.execute_trade_logic(account, n_minutes, leverage, spread)
             if trade_opened:
                 # Step 2: Monitor and manage the trade
-                time.sleep(2)  # Adjust the sleep time as necessary to allow for order placement processing
+                await asyncio.sleep(2)  # Adjust the sleep time as necessary to allow for order placement processing
 
             # Step 3: Update account status after monitoring and managing trades
             account_manager.update_account_status(account, trade_opened)
@@ -922,7 +922,7 @@ async def main(exchange, leverage, howMany, n_minutes, spread, config_path):
         if time_to_wait == 0:
             time_to_wait = n_minutes * 60
         logging.info(f"Sleeping for {time_to_wait} seconds")
-        time.sleep(time_to_wait)
+        await asyncio.sleep(time_to_wait)
 
         await process_trades()
 

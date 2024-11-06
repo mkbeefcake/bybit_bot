@@ -96,13 +96,14 @@ class ExchangePublicStream:
         pass
 
     async def run(self):
+        await self.exchange.load_markets()
         while self.running:
-            for symbol in self.symbols:
-                candles = await self.exchange.watch_ohlcv(symbol, timeframe=f"{self.interval}m", limit=ExchangePublicStream.LIMITED_ITEMS)
-                print(self.exchange.iso8601(self.exchange.milliseconds()), candles)
+            # for symbol in self.symbols:
+            #     candles = await self.exchange.watch_ohlcv(symbol, timeframe=f"{self.interval}m", limit=ExchangePublicStream.LIMITED_ITEMS)
+            #     print(f">>> OHLCV >>> " + self.exchange.iso8601(self.exchange.milliseconds()), candles)
 
-                ticker = await self.exchange.watch_ticker(symbol)
-                print(self.exchange.iso8601(self.exchange.milliseconds()), ticker)
+            #     ticker = await self.exchange.watch_ticker(symbol)
+            #     print(f">>> TICKER >>> " + self.exchange.iso8601(self.exchange.milliseconds()), ticker)
 
             await asyncio.sleep(1)
 
@@ -115,10 +116,12 @@ class ExchangePublicStream:
         if steps == -1:
             steps = self.interval
 
-        return await self.exchange.watch_ohlcv(symbol=symbol, limit=nth, timeframe=steps)
+        # return await self.exchange.watch_ohlcv(symbol=symbol, limit=nth, timeframe=f"{steps}m")
+        return await self.exchange.fetch_ohlcv(symbol=symbol, limit=nth, timeframe=f"{steps}m")
     
     async def get_last_ticker(self, symbol):
-        return await self.exchange.watch_ticker(symbol=symbol)
+        ticker = await self.exchange.watch_ticker(symbol=symbol)
+        return ticker['info']
 
 
 class ExchangeWebSocket:
@@ -149,13 +152,15 @@ class ExchangeWebSocket:
         pass
 
     async def run(self):
+        await self.exchange.load_markets()
         while self.running:
             for symbol in self.symbols:
-                orderbook = await self.exchange.watch_order_book(symbol)
-                print(orderbook['asks'][0], orderbook['bids'][0])
-
-                trades = await self.exchange.watch_trades(symbol)
-                print(self.exchange.iso8601(self.exchange.milliseconds()), trades)    
+                try:
+                    # trades = await self.exchange.fetch_my_trades()
+                    # print(f">>> MY TRADES >>> " + self.exchange.iso8601(self.exchange.milliseconds()), trades)    
+                    await asyncio.sleep(1)
+                except Exception as e:
+                    print(f">>> ERROR : MY TRADES >>> " + e)    
 
             await asyncio.sleep(1)
 
@@ -167,18 +172,13 @@ class ExchangeWebSocket:
     async def set_leverage(self, symbol, buy_leverage, sell_leverage):
         logging.info(f"set_leverage: {symbol} -- {buy_leverage} -- {sell_leverage}")
         async with self.lock:
-            try:
-                await asyncio.sleep(10)
-                return await self.exchange.set_leverage(leverage=buy_leverage, symbol=symbol)
-            except Exception as e:
-                logging.info(f"Error: set_leverage() : {e}")
+            return await self.exchange.set_leverage(leverage=buy_leverage, symbol=symbol)
         
 
     async def get_open_orders(self, symbol):
         async with self.lock:
             try:
-                await asyncio.sleep(10)
-                # return await self.exchange.watch_orders(symbol=symbol)
+                return await self.exchange.fetch_open_orders(symbol=symbol)
             except Exception as e:
                 logging.info(f"Error: get_open_orders() : {e}")
 
@@ -186,17 +186,18 @@ class ExchangeWebSocket:
     async def get_positions(self, symbol):
         async with self.lock:
             try:
-                await asyncio.sleep(10)
-                # return await self.exchange.watch_positions(symbols=[symbol])
+                positions = await self.exchange.fetch_positions(symbols=[symbol])
+                positions = [position['info'] for position in positions]
+                return positions
             except Exception as e:
                 logging.info(f"Error: get_positions() : {e}")
+                return []
 
     
     async def get_wallet_balance(self, account_type, coin):
         async with self.lock:
             try:
-                await asyncio.sleep(10)
-                # return await self.exchange.watch_balance()
+                return await self.exchange.fetch_balance()
             except Exception as e:
                 logging.info(f"Error: watch_balance() : {e}")
             
@@ -220,7 +221,7 @@ class ExchangeWebSocket:
 
         async with self.lock:
             try:
-                return await self.exchange.create_order_ws(**order_params, params=params)
+                return await self.exchange.create_order(**order_params, params=params)
             except Exception as e:
                 logging.info(f"Error: place_order() : {e}")
             
@@ -228,7 +229,7 @@ class ExchangeWebSocket:
     async def cancel_order(self, symbol, orderId):
         async with self.lock:
             try:    
-                return await self.exchange.cancel_order_ws(id=orderId, symbol=symbol)
+                return await self.exchange.cancel_order(id=orderId, symbol=symbol)
             except Exception as e:
                 logging.info(f"Error: cancel_order() : {e}")
             

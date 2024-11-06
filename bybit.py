@@ -229,7 +229,8 @@ class ByBitWebSocketPublicStream:
                 logging.info(f"kline: {message['topic']} -- {message['data'][0]['open']} -- {message['data'][0]['close']} -- {message['data'][0]['high']} -- {message['data'][0]['low']}")
                 cls.kline_queue.push(message)
                 cls.kline_last_sync_time[topic] = message['ts']
-            pass
+            else:
+                cls.kline_queue.update_last(message)
         else:
             logging.info(f"kline: {message['topic']} -- {message['data'][0]['open']} -- {message['data'][0]['close']} -- {message['data'][0]['high']} -- {message['data'][0]['low']}")
             cls.kline_last_sync_time[topic] = message['ts']

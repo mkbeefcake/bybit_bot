@@ -11,19 +11,15 @@ class FixedSizeQueue:
         with self.lock:
             self.queue.append(item)  # Append item (oldest will be discarded if full)
 
-    def pop(self):
+    def update_last(self, item):
         with self.lock:
-            if self.queue:
-                item = self.queue.popleft()  # Pop the oldest item
-                return item
-            else:
-                return None  # Return None if the queue is empty
-            
-    def pop_all(self):
+            self.queue[-1] = item
+
+    def get_all(self):
         with self.lock:
             if self.queue:
                 items = list(self.queue)
-                self.queue.clear()
+                # self.queue.clear()
                 return items
 
     def is_empty(self):

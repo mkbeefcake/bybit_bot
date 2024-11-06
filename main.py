@@ -125,8 +125,8 @@ def updates_sync():
                 continue
 
             # FOR DEBUG ONLY MY TEST ACCOUNT
-            # if api_key != "gExsrmBfeG8mHub03S":
-            #     continue
+            if api_key != "gExsrmBfeG8mHub03S":
+                continue
 
             # Assuming you have the following methods already implemented:
             has_o_t = int(has_open_trades(account) == 'True')  # Convert "True"/"False" to 1/0
